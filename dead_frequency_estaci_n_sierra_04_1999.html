@@ -1,0 +1,2913 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>DEAD FREQUENCY // Estación Repetidora Sierra-04 (1999)</title>
+  <!-- Tipografías retro-tecnológicas y mecanográficas de finales de los 90 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-black: #060807;
+      --crt-green: #33ff66;
+      --crt-green-dim: #198033;
+      --crt-green-dark: #0b2913;
+      --metal-dark: #1c201e;
+      --metal-mid: #2a2e2c;
+      --metal-light: #444b48;
+      --amber: #ffb020;
+      --amber-dim: #8a5a08;
+      --warn-red: #ff2e2e;
+      --warn-red-dim: #751212;
+      --paper-bg: #d8d2c1;
+      --paper-ink: #1b1a17;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-black);
+      color: var(--crt-green);
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      overflow: hidden;
+    }
+
+    /* Efectos CRT discretos y legibles */
+    .crt-scanlines {
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.24) 3px,
+        rgba(0, 0, 0, 0.24) 4px
+      );
+      pointer-events: none;
+    }
+
+    .crt-vignette {
+      background: radial-gradient(
+        circle at center,
+        transparent 58%,
+        rgba(2, 4, 3, 0.55) 88%,
+        rgba(0, 0, 0, 0.92) 100%
+      );
+      pointer-events: none;
+    }
+
+    .phosphor-glow {
+      text-shadow: 0 0 6px rgba(51, 255, 102, 0.55), 0 0 14px rgba(51, 255, 102, 0.2);
+    }
+
+    .amber-glow {
+      text-shadow: 0 0 7px rgba(255, 176, 32, 0.65), 0 0 15px rgba(255, 176, 32, 0.25);
+    }
+
+    .red-glow {
+      text-shadow: 0 0 8px rgba(255, 46, 46, 0.75), 0 0 18px rgba(255, 46, 46, 0.35);
+    }
+
+    /* Animaciones ambientales */
+    @keyframes fluorescentFlicker {
+      0%, 100% { opacity: 1; }
+      92% { opacity: 1; }
+      93% { opacity: 0.72; }
+      94% { opacity: 0.98; }
+      96% { opacity: 0.65; }
+      97% { opacity: 1; }
+    }
+
+    @keyframes anomalyGlitch {
+      0% { transform: translate(0, 0) skewX(0deg); filter: hue-rotate(0deg); }
+      20% { transform: translate(-4px, 1px) skewX(-3deg); filter: hue-rotate(45deg); }
+      40% { transform: translate(5px, -1px) skewX(4deg); }
+      60% { transform: translate(-3px, 0) skewX(-2deg); }
+      80% { transform: translate(2px, 1px) skewX(1deg); }
+      100% { transform: translate(0, 0) skewX(0deg); filter: hue-rotate(0deg); }
+    }
+
+    @keyframes pulseRed {
+      0%, 100% { opacity: 0.25; box-shadow: 0 0 4px #ff2e2e; }
+      50% { opacity: 1; box-shadow: 0 0 18px #ff2e2e, 0 0 32px #ff2e2e; }
+    }
+
+    @keyframes spinReel {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .reel-spinning {
+      animation: spinReel 2.4s linear infinite;
+    }
+
+    .reel-rewinding {
+      animation: spinReel 0.7s linear infinite reverse;
+    }
+
+    .flicker-active {
+      animation: fluorescentFlicker 4.5s infinite;
+    }
+
+    .glitch-burst {
+      animation: anomalyGlitch 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
+    /* Estética de hardware industrial 1999 */
+    .metal-chassis {
+      background: linear-gradient(145deg, #323735 0%, #232725 48%, #181b19 100%);
+      border: 2px solid #444b48;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 -2px 6px rgba(0,0,0,0.75),
+        0 14px 34px rgba(0,0,0,0.85);
+    }
+
+    .metal-inset {
+      background: #121514;
+      border: 1px solid #3a403d;
+      box-shadow: inset 0 3px 10px rgba(0,0,0,0.85);
+    }
+
+    .hw-btn {
+      background: linear-gradient(180deg, #3b413e 0%, #262a28 100%);
+      border: 1px solid #555e5a;
+      box-shadow: 0 3px 0 #111312, inset 0 1px 0 rgba(255,255,255,0.12);
+      transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.15s ease;
+    }
+
+    .hw-btn:hover:not(:disabled) {
+      background: linear-gradient(180deg, #474e4b 0%, #2e3331 100%);
+      border-color: #727d78;
+    }
+
+    .hw-btn:active:not(:disabled), .hw-btn.active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #111312, inset 0 2px 4px rgba(0,0,0,0.7);
+    }
+
+    .hw-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    /* Documentos físicos mecanografiados */
+    .paper-sheet {
+      background-color: var(--paper-bg);
+      background-image:
+        radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0),
+        linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(160,150,130,0.18) 100%);
+      background-size: 16px 16px, 100% 100%;
+      color: var(--paper-ink);
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.85), inset 0 0 40px rgba(110, 98, 76, 0.25);
+    }
+
+    .stamp-red {
+      border: 3px solid #9e1b1b;
+      color: #9e1b1b;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      padding: 2px 8px;
+      transform: rotate(-4deg);
+      display: inline-block;
+      opacity: 0.86;
+    }
+
+    /* Scrollbar retro discreta */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0e0c;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2e3833;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #33ff66;
+    }
+
+    /* Hotspots interactivos en la cabina */
+    .room-hotspot {
+      cursor: pointer;
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+    .room-hotspot:hover {
+      filter: drop-shadow(0 0 10px rgba(51, 255, 102, 0.55));
+    }
+    .room-hotspot:hover .hotspot-tag {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+    .hotspot-tag {
+      opacity: 0.78;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+  </style>
+</head>
+<body class="bg-[#060807] text-[#33ff66] antialiased selection:bg-[#33ff66] selection:text-[#060807]">
+
+  <!-- CAPAS GLOBALES CRT (Scanlines + Viñeta) -->
+  <div class="fixed inset-0 crt-scanlines z-50"></div>
+  <div class="fixed inset-0 crt-vignette z-50"></div>
+
+  <!-- ===================================================================== -->
+  <!-- PANTALLA 1: BOOT SEQUENCE & MENÚ PRINCIPAL (1999)                     -->
+  <!-- ===================================================================== -->
+  <section id="screen-boot" class="relative w-full h-full flex flex-col justify-between p-4 sm:p-8 z-40 bg-[#060807]">
+    <!-- Encabezado BIOS -->
+    <div class="flex flex-wrap justify-between items-start gap-2 text-xs sm:text-sm text-[#198033] border-b border-[#198033]/40 pb-3">
+      <div>
+        <div>SIERRA-BIOS v4.19 (C) 1998-1999 TELECOMUNICACIONES DEL VALLE S.A.</div>
+        <div>CPU: i486DX4-100MHz // RAM: 16384 KB OK // UART-RADIO: COM1 [0x3F8]</div>
+      </div>
+      <div class="text-right">
+        <div>ESTACIÓN REPETIDORA: <span class="text-[#33ff66]">SIERRA-04 (ALT. 1.840m)</span></div>
+        <div>FECHA DEL SISTEMA: <span class="text-[#ffb020]">14-NOV-1999 // 02:00:00</span></div>
+      </div>
+    </div>
+
+    <!-- Centro: Título y controles de inicio -->
+    <div class="max-w-3xl w-full mx-auto my-auto flex flex-col items-center text-center space-y-6">
+      <div class="inline-block px-3 py-1 border border-[#ffb020]/50 bg-[#ffb020]/10 text-[#ffb020] text-xs tracking-[0.25em] rounded">
+        TRANSMISIÓN DE BANDA ANCHA // FRECUENCIA RESTRINGIDA
+      </div>
+
+      <h1 class="text-5xl sm:text-7xl md:text-8xl tracking-[0.14em] font-bold text-[#33ff66] phosphor-glow leading-none" style="font-family: 'VT323', monospace;">
+        DEAD FREQUENCY
+      </h1>
+
+      <p class="text-sm sm:text-base text-[#92b89c] max-w-xl leading-relaxed">
+        Noviembre de 1999. Turno de guardia nocturna en la estación repetidora aislada <span class="text-[#33ff66]">Sierra-04</span>.
+        Tu labor es vigilar el espectro VHF/FM, comprobar balizas y registrar cualquier anomalía en la bitácora.
+      </p>
+
+      <!-- Aviso de sonido procedural -->
+      <div class="flex items-center gap-3 px-4 py-2.5 rounded border border-[#33ff66]/30 bg-[#0b140e] text-xs sm:text-sm text-[#a6d4b2]">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#ffb020] animate-pulse"></span>
+        <span>EXPERIENCIA SONORA EN TIEMPO REAL — SE RECOMIENDA EL USO DE AURICULARES</span>
+      </div>
+
+      <!-- Botonera Principal -->
+      <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 w-full pt-2">
+        <button id="btn-start-game" class="hw-btn px-6 py-3.5 rounded text-base sm:text-lg font-bold tracking-wider text-[#33ff66] border-[#33ff66]/60 hover:text-white cursor-pointer">
+          [ INICIAR TURNO (02:00 AM) ]
+        </button>
+        <button id="btn-boot-audio" class="hw-btn px-5 py-3.5 rounded text-sm sm:text-base text-[#ffb020] cursor-pointer">
+          [ CONFIGURACIÓN DE AUDIO ]
+        </button>
+        <button id="btn-boot-endings" class="hw-btn px-5 py-3.5 rounded text-sm sm:text-base text-[#92b89c] cursor-pointer">
+          [ ARCHIVO DE FINALES (<span id="endings-count-badge">0/3</span>) ]
+        </button>
+      </div>
+    </div>
+
+    <!-- Pie de terminal BIOS -->
+    <div class="flex flex-wrap justify-between items-center text-xs text-[#198033] border-t border-[#198033]/40 pt-3 gap-2">
+      <div>ESTADO DE PORTADORA: EN ESPERA // REGISTRO DE INCIDENTES: 1982-CLAUSURADO</div>
+      <div>DURACIÓN ESTIMADA: 10–20 MIN // INVESTIGACIÓN NARRATIVA</div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- PANTALLA 2: CABINA DE RADIO INTERACTIVA (JUEGO PRINCIPAL)             -->
+  <!-- ===================================================================== -->
+  <main id="screen-game" class="hidden relative w-full h-full flex flex-col justify-between overflow-hidden bg-[#060807]">
+
+    <!-- BARRA SUPERIOR DIEGÉTICA -->
+    <header class="relative z-30 flex items-center justify-between px-3 sm:px-5 py-2 bg-[#111513]/95 border-b border-[#2e3833] text-xs sm:text-sm">
+      <div class="flex items-center gap-3 sm:gap-5">
+        <div class="flex items-center gap-2">
+          <span id="status-led" class="w-2.5 h-2.5 rounded-full bg-[#33ff66] shadow-[0_0_8px_#33ff66]"></span>
+          <span class="font-bold tracking-wider text-[#33ff66] hidden sm:inline">SIERRA-04</span>
+        </div>
+        <div class="px-2.5 py-0.5 rounded bg-[#080a09] border border-[#2e3833] font-mono">
+          RELOJ: <span id="hud-clock" class="text-[#ffb020] font-bold">02:00</span>
+        </div>
+        <div class="hidden md:block text-[#8aa392]">
+          TURNO: <span id="hud-phase-label" class="text-[#33ff66]">FASE I — VIGILANCIA RUTINARIA</span>
+        </div>
+      </div>
+
+      <!-- Indicador sutil de objetivo/pista ambiental -->
+      <div id="hud-hint" class="hidden lg:block text-xs text-[#ffb020]/90 truncate max-w-md">
+        &gt; Consultar Manual Operativo o comprobar baliza de control en 88.4 MHz.
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="btn-back-room" class="hidden hw-btn px-3 py-1.5 rounded text-xs sm:text-sm text-[#ffb020] font-bold cursor-pointer">
+          [ &lt; CABINA (ESC) ]
+        </button>
+        <button id="btn-open-pause" class="hw-btn px-3 py-1.5 rounded text-xs sm:text-sm text-[#33ff66] cursor-pointer">
+          [ SISTEMA / AUDIO ]
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENEDOR CENTRAL: ESCENA DE LA HABITACIÓN + VISTAS DE PRIMER PLANO -->
+    <div id="cabin-viewport" class="relative flex-1 w-full h-full overflow-hidden">
+
+      <!-- CAPA 0: LIENZO DE LLUVIA Y AMBIENTE EXTERIOR -->
+      <canvas id="canvas-weather" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+      <!-- CAPA 1: ESCENA INTERACTIVA EN PRIMERA PERSONA DE LA CABINA (SVG DETALLADO CON PARALAJE) -->
+      <div id="room-scene" class="relative w-full h-full flex items-center justify-center transition-transform duration-150 ease-out z-10">
+        <svg id="cabin-svg" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+          <defs>
+            <!-- Gradientes de iluminación atmosférica -->
+            <radialGradient id="lampGlow" cx="50%" cy="35%" r="55%">
+              <stop offset="0%" stop-color="#ffb020" stop-opacity="0.22" />
+              <stop offset="55%" stop-color="#ffb020" stop-opacity="0.06" />
+              <stop offset="100%" stop-color="#060807" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="crtRoomGlow" cx="35%" cy="55%" r="40%">
+              <stop offset="0%" stop-color="#33ff66" stop-opacity="0.18" />
+              <stop offset="100%" stop-color="#060807" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="amberTunerGlow" cx="62%" cy="56%" r="32%">
+              <stop offset="0%" stop-color="#ffb020" stop-opacity="0.24" />
+              <stop offset="100%" stop-color="#060807" stop-opacity="0" />
+            </radialGradient>
+            <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#111614" />
+              <stop offset="65%" stop-color="#0b0e0c" />
+              <stop offset="100%" stop-color="#060807" />
+            </linearGradient>
+            <linearGradient id="deskGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#282c2a" />
+              <stop offset="25%" stop-color="#1c201e" />
+              <stop offset="100%" stop-color="#0f1210" />
+            </linearGradient>
+          </defs>
+
+          <!-- Pared trasera de hormigón y paneles acústicos -->
+          <rect x="0" y="0" width="1440" height="820" fill="url(#wallGrad)" />
+          <!-- Juntas de paneles industriales -->
+          <g stroke="#1b211e" stroke-width="2">
+            <line x1="240" y1="0" x2="240" y2="560" />
+            <line x1="560" y1="0" x2="560" y2="560" />
+            <line x1="940" y1="0" x2="940" y2="560" />
+            <line x1="1220" y1="0" x2="1220" y2="560" />
+            <line x1="0" y1="180" x2="1440" y2="180" />
+          </g>
+
+          <!-- Tubo fluorescente superior -->
+          <g id="room-fluorescent">
+            <rect x="520" y="18" width="400" height="14" rx="4" fill="#2a2e2c" stroke="#444b48" />
+            <rect x="534" y="23" width="372" height="6" rx="2" fill="#c9ebd4" opacity="0.75" />
+            <ellipse cx="720" cy="45" rx="360" ry="38" fill="#33ff66" opacity="0.06" />
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- HOTSPOT 7: VENTANA BLINDADA HACIA TORRE + DISYUNTOR             -->
+          <!-- =============================================================== -->
+          <g id="hs-window" class="room-hotspot" data-target="window">
+            <!-- Marco metálico ventana -->
+            <rect x="975" y="95" width="320" height="260" rx="6" fill="#05080a" stroke="#3a423e" stroke-width="8" />
+            <!-- Cielo nocturno tormentoso -->
+            <rect x="983" y="103" width="304" height="244" fill="#070c10" />
+            <!-- Silueta de montañas -->
+            <polygon points="983,347 983,275 1060,240 1155,285 1235,235 1287,265 1287,347" fill="#0b1216" />
+            <!-- Torre de transmisión Sierra-04 -->
+            <g stroke="#26333a" stroke-width="2" fill="none">
+              <line x1="1135" y1="132" x2="1108" y2="330" />
+              <line x1="1135" y1="132" x2="1162" y2="330" />
+              <line x1="1124" y1="185" x2="1146" y2="185" />
+              <line x1="1118" y1="235" x2="1152" y2="235" />
+              <line x1="1112" y1="285" x2="1158" y2="285" />
+              <line x1="1124" y1="185" x2="1152" y2="235" />
+              <line x1="1146" y1="185" x2="1118" y2="235" />
+              <line x1="1118" y1="235" x2="1158" y2="285" />
+              <line x1="1152" y1="235" x2="1112" y2="285" />
+              <!-- Antenas horizontales -->
+              <line x1="1105" y1="152" x2="1165" y2="152" stroke-width="3" />
+              <line x1="1115" y1="132" x2="1155" y2="132" stroke-width="2" />
+            </g>
+            <!-- Baliza roja de la torre (dinámica según fase) -->
+            <circle id="tower-beacon-glow" cx="1135" cy="128" r="24" fill="#ff2e2e" opacity="0.25" />
+            <circle id="tower-beacon-core" cx="1135" cy="128" r="4.5" fill="#ff2e2e" />
+
+            <!-- Barrotes/refuerzo de cristal blindado -->
+            <line x1="1135" y1="103" x2="1135" y2="347" stroke="#232926" stroke-width="4" />
+            <line x1="983" y1="225" x2="1287" y2="225" stroke="#232926" stroke-width="4" />
+
+            <!-- Caja de Disyuntor de Alta Tensión junto a la ventana -->
+            <rect x="1312" y="155" width="76" height="145" rx="4" fill="#232725" stroke="#4e5753" stroke-width="2" />
+            <rect x="1322" y="166" width="56" height="22" fill="#ffb020" opacity="0.85" />
+            <text x="1350" y="181" text-anchor="middle" fill="#060807" font-size="10" font-weight="bold">ALTA TENSIÓN</text>
+            <!-- Palanca del disyuntor -->
+            <rect x="1342" y="202" width="16" height="58" rx="2" fill="#111413" stroke="#3c423f" />
+            <rect id="room-breaker-lever" x="1334" y="208" width="32" height="14" rx="2" fill="#ff2e2e" />
+            <circle id="room-breaker-led" cx="1350" cy="280" r="5" fill="#33ff66" />
+
+            <g class="hotspot-tag">
+              <rect x="1035" y="362" width="210" height="24" rx="3" fill="#080c0a" stroke="#33ff66" stroke-width="1" />
+              <text x="1140" y="378" text-anchor="middle" fill="#33ff66" font-size="12">[ TORRE Y DISYUNTOR ]</text>
+            </g>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- HOTSPOT 6: RELOJ DE PARED ANALÓGICO                             -->
+          <!-- =============================================================== -->
+          <g id="hs-clock" class="room-hotspot" data-target="clock">
+            <circle cx="720" cy="165" r="58" fill="#1b1f1d" stroke="#4a524e" stroke-width="5" />
+            <circle cx="720" cy="165" r="49" fill="#d4cfc0" />
+            <!-- Marcas horarias -->
+            <g stroke="#1b1a17" stroke-width="2">
+              <line x1="720" y1="121" x2="720" y2="129" />
+              <line x1="720" y1="201" x2="720" y2="209" />
+              <line x1="676" y1="165" x2="684" y2="165" />
+              <line x1="756" y1="165" x2="764" y2="165" />
+            </g>
+            <!-- Agujas dinámicas -->
+            <line id="clock-hand-hour" x1="720" y1="165" x2="736" y2="146" stroke="#111" stroke-width="3.5" stroke-linecap="round" />
+            <line id="clock-hand-min" x1="720" y1="165" x2="720" y2="127" stroke="#111" stroke-width="2.5" stroke-linecap="round" />
+            <line id="clock-hand-sec" x1="720" y1="165" x2="720" y2="124" stroke="#b81d1d" stroke-width="1.3" />
+            <circle cx="720" cy="165" r="3.5" fill="#111" />
+            <g class="hotspot-tag">
+              <rect x="662" y="232" width="116" height="22" rx="3" fill="#080c0a" stroke="#33ff66" stroke-width="1" />
+              <text x="720" y="247" text-anchor="middle" fill="#33ff66" font-size="11">[ RELOJ PARED ]</text>
+            </g>
+          </g>
+
+          <!-- Póster / Diagrama técnico colgado en la pared izquierda -->
+          <g opacity="0.82">
+            <rect x="310" y="110" width="175" height="215" fill="#c7c1b0" stroke="#3b403d" stroke-width="2" />
+            <text x="397" y="132" text-anchor="middle" fill="#1b1a17" font-size="10" font-weight="bold">ESPECTRO VHF SIERRA-04</text>
+            <line x1="325" y1="140" x2="470" y2="140" stroke="#1b1a17" stroke-width="1" />
+            <text x="325" y="158" fill="#1b1a17" font-size="9">88.4 MHz : BALIZA CONTROL</text>
+            <text x="325" y="175" fill="#1b1a17" font-size="9">91.0 - 106.0 : BANDA CIVIL</text>
+            <text x="325" y="192" fill="#8f1d1d" font-size="9" font-weight="bold">107.9 MHz : RESTRINGIDA</text>
+            <!-- Esquema de onda -->
+            <path d="M 328 245 Q 348 210, 368 245 T 408 245 T 448 245" fill="none" stroke="#1b1a17" stroke-width="1.5" />
+            <text x="325" y="285" fill="#38352e" font-size="8">EN CASO DE INTERFERENCIA</text>
+            <text x="325" y="298" fill="#38352e" font-size="8">REGISTRAR EN TERMINAL CRT</text>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- ESCRITORIO PRINCIPAL DE LA CABINA                               -->
+          <!-- =============================================================== -->
+          <polygon points="60,520 1380,520 1440,820 0,820" fill="url(#deskGrad)" stroke="#39403c" stroke-width="2" />
+          <rect x="0" y="516" width="1440" height="12" fill="#343a37" />
+
+          <!-- Resplandores ambientales sobre el escritorio -->
+          <rect x="0" y="0" width="1440" height="820" fill="url(#lampGlow)" pointer-events="none" />
+          <rect x="0" y="0" width="1440" height="820" fill="url(#crtRoomGlow)" pointer-events="none" />
+          <rect x="0" y="0" width="1440" height="820" fill="url(#amberTunerGlow)" pointer-events="none" />
+
+          <!-- =============================================================== -->
+          <!-- HOTSPOT 4: ARCHIVADOR METÁLICO Y DOCUMENTOS (IZQUIERDA)         -->
+          <!-- =============================================================== -->
+          <g id="hs-files" class="room-hotspot" data-target="files">
+            <!-- Archivador metálico lateral -->
+            <rect x="65" y="340" width="195" height="390" rx="4" fill="#232826" stroke="#474f4b" stroke-width="3" />
+            <!-- Cajón superior -->
+            <rect x="78" y="356" width="169" height="110" rx="2" fill="#1b1f1d" stroke="#3b423f" stroke-width="2" />
+            <rect x="138" y="372" width="48" height="16" rx="2" fill="#c7c1b0" />
+            <text x="162" y="383" text-anchor="middle" fill="#111" font-size="9" font-weight="bold">1982-1999</text>
+            <rect x="132" y="405" width="60" height="10" rx="2" fill="#59635e" />
+            <!-- Cajón medio -->
+            <rect x="78" y="478" width="169" height="110" rx="2" fill="#1b1f1d" stroke="#3b423f" stroke-width="2" />
+            <rect x="138" y="494" width="48" height="16" rx="2" fill="#c7c1b0" />
+            <text x="162" y="505" text-anchor="middle" fill="#111" font-size="9" font-weight="bold">MANUALES</text>
+            <rect x="132" y="527" width="60" height="10" rx="2" fill="#59635e" />
+            <!-- Cajón inferior (con pista en Fase 3) -->
+            <rect x="78" y="600" width="169" height="115" rx="2" fill="#1b1f1d" stroke="#3b423f" stroke-width="2" />
+            <rect id="drawer-alert-tag" x="138" y="616" width="48" height="16" rx="2" fill="#8a3030" />
+            <text x="162" y="627" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">CERRADO</text>
+            <rect x="132" y="650" width="60" height="10" rx="2" fill="#59635e" />
+
+            <!-- Carpetas manila sobre el borde izquierdo del escritorio -->
+            <polygon points="272,565 375,555 390,625 280,638" fill="#c9b484" stroke="#786846" stroke-width="1.5" />
+            <polygon points="282,575 385,568 398,635 288,646" fill="#decb9b" stroke="#786846" stroke-width="1.5" />
+            <text x="312" y="602" fill="#6e1818" font-size="10" font-weight="bold" transform="rotate(-5 312,602)">SIERRA-01</text>
+
+            <g class="hotspot-tag">
+              <rect x="85" y="306" width="175" height="24" rx="3" fill="#080c0a" stroke="#33ff66" stroke-width="1" />
+              <text x="172" y="322" text-anchor="middle" fill="#33ff66" font-size="12">[ ARCHIVADOR / DOCS ]</text>
+            </g>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- HOTSPOT 2: MONITOR CRT DE FÓSFORO VERDE (CENTRO-IZQUIERDA)      -->
+          <!-- =============================================================== -->
+          <g id="hs-crt" class="room-hotspot" data-target="crt">
+            <!-- Base CPU horizontal 1999 -->
+            <rect x="395" y="485" width="275" height="58" rx="4" fill="#2b302e" stroke="#49524e" stroke-width="2" />
+            <rect x="415" y="502" width="95" height="10" rx="2" fill="#121514" />
+            <circle cx="635" cy="512" r="5" fill="#33ff66" />
+            <circle cx="650" cy="512" r="4" fill="#ffb020" />
+
+            <!-- Carcasa Monitor CRT -->
+            <rect x="405" y="295" width="255" height="192" rx="12" fill="#343a37" stroke="#535c58" stroke-width="3" />
+            <!-- Bisel interior -->
+            <rect x="422" y="310" width="221" height="156" rx="8" fill="#09120c" stroke="#1e2621" stroke-width="3" />
+            <!-- Contenido vivo miniatura del monitor CRT -->
+            <text x="434" y="330" fill="#33ff66" font-size="11" font-weight="bold">REL-OS v2.4 // SIERRA-04</text>
+            <line x1="434" y1="336" x2="630" y2="336" stroke="#198033" stroke-width="1" />
+            <text id="room-crt-line1" x="434" y="354" fill="#33ff66" font-size="10">&gt; SISTEMA ACTIVO</text>
+            <text id="room-crt-line2" x="434" y="372" fill="#33ff66" font-size="10">&gt; SEÑALES REG: 0</text>
+            <text id="room-crt-line3" x="434" y="390" fill="#ffb020" font-size="10">&gt; ESPECTRO: NORMAL</text>
+            <rect x="434" y="405" width="196" height="45" fill="#060d08" stroke="#198033" stroke-width="1" />
+            <polyline id="room-crt-wave" points="438,428 465,428 475,414 485,442 495,428 540,428 552,418 562,438 572,428 625,428" fill="none" stroke="#33ff66" stroke-width="1.5" />
+
+            <!-- Teclado mecánico frente al CRT -->
+            <polygon points="385,558 675,558 692,605 368,605" fill="#2c312f" stroke="#4c5450" stroke-width="2" />
+            <polygon points="398,566 662,566 674,596 386,596" fill="#181c1a" />
+
+            <g class="hotspot-tag">
+              <rect x="442" y="262" width="180" height="24" rx="3" fill="#080c0a" stroke="#33ff66" stroke-width="1" />
+              <text x="532" y="278" text-anchor="middle" fill="#33ff66" font-size="12">[ TERMINAL CRT ]</text>
+            </g>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- HOTSPOT 1: SINTONIZADOR DE RADIO MARCONI-99 (CENTRO-DERECHA)    -->
+          <!-- =============================================================== -->
+          <g id="hs-radio" class="room-hotspot" data-target="radio">
+            <!-- Chasis principal de radio analógica -->
+            <rect x="705" y="348" width="335" height="195" rx="6" fill="#232725" stroke="#525c57" stroke-width="3" />
+            <!-- Dial iluminado en ámbar -->
+            <rect x="724" y="368" width="297" height="58" rx="4" fill="#1c1305" stroke="#755214" stroke-width="2" />
+            <rect x="730" y="374" width="285" height="46" rx="2" fill="#ffb020" opacity="0.16" />
+            <!-- Escala de frecuencias -->
+            <line x1="740" y1="398" x2="1005" y2="398" stroke="#ffb020" stroke-width="1.5" />
+            <text x="742" y="390" fill="#ffb020" font-size="10">88</text>
+            <text x="795" y="390" fill="#ffb020" font-size="10">92</text>
+            <text x="848" y="390" fill="#ffb020" font-size="10">96</text>
+            <text x="902" y="390" fill="#ffb020" font-size="10">100</text>
+            <text x="955" y="390" fill="#ffb020" font-size="10">104</text>
+            <text x="992" y="390" fill="#ffb020" font-size="10">108</text>
+            <!-- Aguja roja del dial en la escena -->
+            <line id="room-radio-needle" x1="758" y1="373" x2="758" y2="421" stroke="#ff2e2e" stroke-width="2.5" />
+
+            <!-- Mini medidor S-Meter + Osciloscopio en chasis -->
+            <rect x="725" y="440" width="85" height="52" rx="3" fill="#14110b" stroke="#4f483b" />
+            <path d="M 736 482 Q 767 450, 798 482" fill="none" stroke="#ffb020" stroke-width="1.5" />
+            <line id="room-smeter-needle" x1="767" y1="484" x2="746" y2="462" stroke="#ff2e2e" stroke-width="2" />
+
+            <!-- Perilla principal grande de sintonía -->
+            <circle cx="972" cy="482" r="34" fill="#171a19" stroke="#636e69" stroke-width="3" />
+            <circle cx="972" cy="482" r="24" fill="#2c312f" />
+            <circle id="room-knob-dot" cx="972" cy="464" r="3.5" fill="#ffb020" />
+
+            <!-- Perillas secundarias e interruptores -->
+            <circle cx="845" cy="485" r="16" fill="#171a19" stroke="#555e5a" stroke-width="2" />
+            <circle cx="892" cy="485" r="16" fill="#171a19" stroke="#555e5a" stroke-width="2" />
+            <text id="room-radio-freq-readout" x="872" y="454" text-anchor="middle" fill="#ffb020" font-size="13" font-weight="bold">88.0 MHz</text>
+
+            <g class="hotspot-tag">
+              <rect x="770" y="314" width="205" height="24" rx="3" fill="#080c0a" stroke="#ffb020" stroke-width="1" />
+              <text x="872" y="330" text-anchor="middle" fill="#ffb020" font-size="12">[ RADIO MARCONI-99 ]</text>
+            </g>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- HOTSPOT 3: GRABADORA DE CASETE TEAC-82 (DERECHA ESCRITORIO)     -->
+          <!-- =============================================================== -->
+          <g id="hs-tape" class="room-hotspot" data-target="tape">
+            <rect x="1072" y="455" width="215" height="125" rx="5" fill="#262b29" stroke="#4d5752" stroke-width="2.5" />
+            <!-- Compartimento de casete -->
+            <rect x="1090" y="472" width="130" height="72" rx="4" fill="#111413" stroke="#3b423f" stroke-width="2" />
+            <!-- Carretes de cinta -->
+            <circle cx="1126" cy="508" r="15" fill="#2b302e" stroke="#85918b" stroke-width="2" />
+            <circle cx="1184" cy="508" r="15" fill="#2b302e" stroke="#85918b" stroke-width="2" />
+            <rect x="1142" y="502" width="26" height="12" fill="#3a2818" />
+            <!-- Botones de transporte -->
+            <rect x="1092" y="552" width="22" height="16" rx="2" fill="#3c423f" />
+            <rect x="1118" y="552" width="22" height="16" rx="2" fill="#3c423f" />
+            <rect x="1144" y="552" width="22" height="16" rx="2" fill="#3c423f" />
+            <rect x="1170" y="552" width="22" height="16" rx="2" fill="#752424" />
+            <!-- Contador digital -->
+            <rect x="1232" y="476" width="42" height="22" fill="#090c0a" stroke="#3a403d" />
+            <text id="room-tape-counter" x="1253" y="491" text-anchor="middle" fill="#33ff66" font-size="11">000</text>
+            <circle id="room-tape-led" cx="1253" cy="522" r="5" fill="#198033" />
+
+            <g class="hotspot-tag">
+              <rect x="1092" y="422" width="176" height="24" rx="3" fill="#080c0a" stroke="#33ff66" stroke-width="1" />
+              <text x="1180" y="438" text-anchor="middle" fill="#33ff66" font-size="12">[ GRABADORA TEAC-82 ]</text>
+            </g>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- HOTSPOT 5: TELÉFONO FIJO DE DISCO (EXTREMO DERECHO)             -->
+          <!-- =============================================================== -->
+          <g id="hs-phone" class="room-hotspot" data-target="phone">
+            <!-- Cable cortado colgando -->
+            <path d="M 1345 645 Q 1375 690, 1360 735" fill="none" stroke="#181b1a" stroke-width="4" />
+            <circle cx="1360" cy="736" r="3" fill="#b84a39" />
+            <!-- Cuerpo teléfono industrial -->
+            <rect x="1265" y="592" width="115" height="78" rx="10" fill="#212523" stroke="#4c5450" stroke-width="2.5" />
+            <!-- Disco rotatorio -->
+            <circle cx="1322" cy="634" r="22" fill="#111413" stroke="#636e69" stroke-width="2" />
+            <circle cx="1322" cy="634" r="9" fill="#c7c1b0" />
+            <!-- Auricular sobre horquilla -->
+            <rect x="1254" y="574" width="136" height="22" rx="10" fill="#2e3331" stroke="#5b635f" stroke-width="2" />
+            <!-- Indicador visual cuando suena en Fase 3 -->
+            <circle id="room-phone-ring-aura" cx="1322" cy="610" r="45" fill="none" stroke="#ff2e2e" stroke-width="2" opacity="0" />
+
+            <g class="hotspot-tag">
+              <rect x="1248" y="680" width="148" height="24" rx="3" fill="#080c0a" stroke="#33ff66" stroke-width="1" />
+              <text x="1322" y="696" text-anchor="middle" fill="#33ff66" font-size="12">[ TELÉFONO FIJO ]</text>
+            </g>
+          </g>
+
+          <!-- Lámpara articulada de escritorio (decorativa con luz cálida) -->
+          <g pointer-events="none">
+            <path d="M 685 520 L 665 340 L 725 255" fill="none" stroke="#3c423f" stroke-width="6" stroke-linecap="round" />
+            <polygon points="700,255 765,245 778,278 692,282" fill="#2d3330" stroke="#525c57" stroke-width="2" />
+            <ellipse cx="735" cy="280" rx="32" ry="6" fill="#ffb020" opacity="0.85" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- CAPA 2: PANELES DE INSPECCIÓN EN PRIMER PLANO (OVERLAY DIEGÉTICO)    -->
+      <!-- =================================================================== -->
+      <div id="closeup-backdrop" class="hidden absolute inset-0 bg-[#040605]/85 backdrop-blur-[2px] z-20 flex items-center justify-center p-2 sm:p-5 overflow-y-auto">
+
+        <!-- 1. PRIMER PLANO: TRANSCEPTOR DE RADIO MARCONI-99 -->
+        <section id="view-radio" class="hidden metal-chassis w-full max-w-4xl rounded-lg p-4 sm:p-6 flex flex-col gap-4 my-auto">
+          <div class="flex flex-wrap justify-between items-center border-b border-[#444b48] pb-2 gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-3 h-3 rounded-full bg-[#ffb020] shadow-[0_0_8px_#ffb020]"></span>
+              <h2 class="text-base sm:text-xl font-bold tracking-wider text-[#ffb020] amber-glow">
+                TRANSCEPTOR ANALÓGICO MARCONI-99 // BANDA VHF-FM
+              </h2>
+            </div>
+            <div class="text-xs text-[#92b89c]">
+              ARRASTRA DIAL / RUEDA RATÓN / TECLAS <span class="text-[#ffb020]">← →</span>
+            </div>
+          </div>
+
+          <!-- Fila Superior: Dial Físico + Osciloscopio + S-Meter -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <!-- Dial analógico iluminado (7 cols) -->
+            <div class="lg:col-span-7 metal-inset rounded p-3 flex flex-col justify-between gap-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-[#ffb020]/80 tracking-widest">FRECUENCIA SINTONIZADA</span>
+                <div class="px-3 py-1 rounded bg-[#1a1204] border border-[#ffb020]/50 text-2xl sm:text-3xl font-bold text-[#ffb020] amber-glow" id="radio-freq-display">
+                  88.0 MHz
+                </div>
+              </div>
+
+              <!-- Regla de dial interactiva -->
+              <div id="radio-scale-bar" class="relative h-20 rounded bg-gradient-to-b from-[#241806] via-[#362409] to-[#1a1104] border-2 border-[#7a5414] cursor-ew-resize overflow-hidden flex flex-col justify-between p-2">
+                <!-- Marcas de escala generadas dinámicamente -->
+                <div id="radio-scale-ticks" class="relative w-full h-full"></div>
+                <!-- Aguja indicadora roja -->
+                <div id="radio-dial-cursor" class="absolute top-0 bottom-0 w-0.5 bg-[#ff2e2e] shadow-[0_0_10px_#ff2e2e] pointer-events-none" style="left: 5%;">
+                  <div class="w-3 h-3 -ml-[5px] bg-[#ff2e2e] rounded-b-sm"></div>
+                </div>
+              </div>
+
+              <!-- Controles finos e interruptores AFC / SQUELCH -->
+              <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                <div class="flex items-center gap-1.5">
+                  <button id="btn-freq-down-fast" class="hw-btn px-2.5 py-1.5 rounded text-xs text-[#ffb020] cursor-pointer">-1.0</button>
+                  <button id="btn-freq-down" class="hw-btn px-3 py-1.5 rounded text-sm font-bold text-[#ffb020] cursor-pointer">-0.1</button>
+                  <button id="btn-freq-up" class="hw-btn px-3 py-1.5 rounded text-sm font-bold text-[#ffb020] cursor-pointer">+0.1</button>
+                  <button id="btn-freq-up-fast" class="hw-btn px-2.5 py-1.5 rounded text-xs text-[#ffb020] cursor-pointer">+1.0</button>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <!-- Interruptor AFC -->
+                  <button id="btn-toggle-afc" class="hw-btn px-3 py-1.5 rounded text-xs flex items-center gap-2 cursor-pointer">
+                    <span id="led-afc" class="w-2.5 h-2.5 rounded-full bg-[#33ff66] shadow-[0_0_6px_#33ff66]"></span>
+                    <span>AFC: <strong id="label-afc">ON</strong></span>
+                  </button>
+
+                  <!-- Control SQUELCH -->
+                  <div class="flex items-center gap-2 text-xs">
+                    <span class="text-[#92b89c]">SQL:</span>
+                    <input id="slider-squelch" type="range" min="0" max="60" value="15" class="w-20 accent-[#ffb020] cursor-pointer" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Osciloscopio + S-Meter (5 cols) -->
+            <div class="lg:col-span-5 flex flex-col gap-3">
+              <!-- Osciloscopio CRT -->
+              <div class="metal-inset rounded p-2 relative">
+                <div class="flex justify-between text-[10px] text-[#33ff66]/80 mb-1">
+                  <span>OSCILOSCOPIO DE PORTADORA</span>
+                  <span id="radio-modulation-tag">ESTÁTICA</span>
+                </div>
+                <canvas id="canvas-oscilloscope" class="w-full h-24 rounded bg-[#050c07] border border-[#198033]/50"></canvas>
+              </div>
+
+              <!-- Medidor S-Meter + Perilla rotatoria -->
+              <div class="grid grid-cols-2 gap-3">
+                <div class="metal-inset rounded p-2.5 flex flex-col justify-between">
+                  <span class="text-[10px] text-[#ffb020]/80">INTENSIDAD SEÑAL (S-METER)</span>
+                  <div class="relative h-14 flex items-end justify-center overflow-hidden border-b border-[#3a403d]">
+                    <div class="w-24 h-24 rounded-full border-2 border-[#ffb020]/40 -mb-12"></div>
+                    <div id="smeter-needle" class="absolute bottom-0 w-0.5 h-11 bg-[#ff2e2e] origin-bottom transition-transform duration-100" style="transform: rotate(-42deg);"></div>
+                  </div>
+                  <div class="flex justify-between text-[10px] text-[#92b89c] pt-1">
+                    <span>S1</span><span>S5</span><span>S9</span><span class="text-[#ff2e2e]">+30dB</span>
+                  </div>
+                </div>
+
+                <!-- Perilla Rotatoria Táctil -->
+                <div class="metal-inset rounded p-2 flex flex-col items-center justify-center">
+                  <div id="rotary-knob" title="Arrastra para girar el dial" class="w-16 h-16 rounded-full bg-gradient-to-b from-[#3c423f] to-[#181b19] border-2 border-[#6b7570] shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing relative">
+                    <div id="rotary-knob-marker" class="w-1.5 h-5 bg-[#ffb020] rounded-full -mt-7 shadow-[0_0_6px_#ffb020]"></div>
+                  </div>
+                  <span class="text-[10px] text-[#92b89c] mt-1.5">SINTONÍA FINA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pantalla de Transcripción / Decodificación en Vivo -->
+          <div class="metal-inset rounded p-3.5 flex flex-col gap-2 border border-[#33ff66]/30">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-[#33ff66] font-bold">MONITOR DE AUDIO / TRANSCRIPCIÓN DE BANDA:</span>
+              <span id="radio-signal-quality" class="text-[#ffb020]">CLARIDAD: 0%</span>
+            </div>
+            <div id="radio-transcript-box" class="min-h-[68px] p-2.5 rounded bg-[#050907] border border-[#198033]/40 text-sm sm:text-base text-[#33ff66] leading-relaxed font-mono">
+              [ RUIDO DE FONDO — SIN PORTADORA DETECTADA ]
+            </div>
+            <div class="flex flex-wrap justify-between items-center gap-3 pt-1">
+              <div id="radio-station-id" class="text-xs text-[#8aa392]">
+                PORTADORA: NO IDENTIFICADA
+              </div>
+              <button id="btn-log-signal" disabled class="hw-btn px-4 py-2 rounded text-xs sm:text-sm font-bold text-[#33ff66] border-[#33ff66]/60 cursor-pointer">
+                [ REGISTRAR SEÑAL EN BITÁCORA ]
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. PRIMER PLANO: MONITOR CRT DE FÓSFORO VERDE (REL-OS v2.4) -->
+        <section id="view-crt" class="hidden w-full max-w-4xl rounded-xl p-3 sm:p-5 bg-[#262b29] border-4 border-[#444b48] shadow-2xl my-auto">
+          <div class="rounded-lg bg-[#060d08] border-2 border-[#198033] p-4 sm:p-5 flex flex-col gap-4 min-h-[460px] max-h-[82vh]">
+            <!-- Cabecera del sistema operativo 1999 -->
+            <div class="flex flex-wrap justify-between items-center border-b border-[#198033] pb-2.5 gap-2">
+              <div class="text-sm sm:text-base font-bold text-[#33ff66] phosphor-glow">
+                REL-OS v2.4 // TERMINAL SIERRA-04
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <button data-crt-tab="log" class="crt-tab-btn px-3 py-1 rounded text-xs sm:text-sm bg-[#33ff66] text-[#060807] font-bold cursor-pointer">
+                  BITÁCORA.LOG
+                </button>
+                <button data-crt-tab="spectrum" class="crt-tab-btn px-3 py-1 rounded text-xs sm:text-sm border border-[#198033] text-[#33ff66] hover:bg-[#198033]/30 cursor-pointer">
+                  ESPECTRO.EXE
+                </button>
+                <button data-crt-tab="files" class="crt-tab-btn px-3 py-1 rounded text-xs sm:text-sm border border-[#198033] text-[#33ff66] hover:bg-[#198033]/30 cursor-pointer">
+                  ARCHIVOS.SYS
+                </button>
+                <button id="tab-btn-tower" data-crt-tab="tower" class="crt-tab-btn px-3 py-1 rounded text-xs sm:text-sm border border-[#ff2e2e]/60 text-[#ff2e2e] hover:bg-[#ff2e2e]/20 cursor-pointer">
+                  TORRE_CTRL.CMD
+                </button>
+              </div>
+            </div>
+
+            <!-- Contenido dinámico de pestañas CRT -->
+            <div id="crt-tab-content" class="flex-1 overflow-y-auto pr-1 text-xs sm:text-sm space-y-3">
+              <!-- Se rellena por JS -->
+            </div>
+
+            <div class="border-t border-[#198033]/50 pt-2 flex justify-between text-[11px] text-[#198033]">
+              <span>MEMORIA LIBRE: 612 KB // BUFFER DE RADIO: ACTIVO</span>
+              <span id="crt-footer-status">LISTO</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. PRIMER PLANO: GRABADORA DE CASETE TEAC-82 -->
+        <section id="view-tape" class="hidden metal-chassis w-full max-w-2xl rounded-lg p-5 flex flex-col gap-4 my-auto">
+          <div class="flex justify-between items-center border-b border-[#444b48] pb-2">
+            <h2 class="text-base sm:text-lg font-bold text-[#33ff66]">DECK MAGNÉTICO TEAC-82 // REPRODUCTOR DE CINTA</h2>
+            <span id="tape-status-badge" class="px-2 py-0.5 rounded bg-[#111513] border border-[#3a403d] text-xs text-[#ffb020]">DETENIDO</span>
+          </div>
+
+          <!-- Selector de casetes disponibles -->
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-[#141816] p-2.5 rounded border border-[#343b38]">
+            <span class="text-xs text-[#92b89c]">CASETE INSERTADO:</span>
+            <div id="tape-selector-list" class="flex flex-wrap gap-2">
+              <!-- Botones de cintas generados por JS -->
+            </div>
+          </div>
+
+          <!-- Ventana mecánica de casete -->
+          <div class="metal-inset rounded-lg p-5 flex flex-col items-center gap-4 relative">
+            <div class="w-full max-w-md bg-[#1d211f] border-2 border-[#4d5752] rounded-md p-4 flex flex-col gap-3 shadow-inner">
+              <div class="bg-[#d6cfb8] text-[#141412] px-3 py-1.5 rounded-sm font-mono text-xs sm:text-sm font-bold flex justify-between items-center">
+                <span id="cassette-label-title">CINTA #01: PROTOCOLO Y CALIBRACIÓN</span>
+                <span id="cassette-label-year">1999</span>
+              </div>
+
+              <!-- Carretes animados -->
+              <div class="flex items-center justify-around py-2 bg-[#0c0e0d] rounded border border-[#343a37]">
+                <div id="reel-left" class="w-14 h-14 rounded-full border-4 border-[#7a857f] flex items-center justify-center">
+                  <div class="w-4 h-4 rounded-full bg-[#1b1f1d] border-2 border-[#ffb020]"></div>
+                </div>
+                <div class="text-center">
+                  <div class="text-[10px] text-[#8aa392]">CONTADOR</div>
+                  <div id="tape-counter-display" class="text-xl font-bold text-[#33ff66] bg-[#060807] px-3 py-0.5 rounded border border-[#198033]">000</div>
+                </div>
+                <div id="reel-right" class="w-14 h-14 rounded-full border-4 border-[#7a857f] flex items-center justify-center">
+                  <div class="w-4 h-4 rounded-full bg-[#1b1f1d] border-2 border-[#ffb020]"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transcripción de la cinta -->
+            <div id="tape-transcript-box" class="w-full min-h-[76px] p-3 rounded bg-[#070a08] border border-[#198033]/50 text-xs sm:text-sm text-[#33ff66] leading-relaxed">
+              [ PULSE PLAY PARA REPRODUCIR LA CINTA MAGNÉTICA ]
+            </div>
+
+            <!-- Botonera física de transporte -->
+            <div class="flex flex-wrap justify-center gap-3">
+              <button id="btn-tape-play" class="hw-btn px-5 py-2.5 rounded text-sm font-bold text-[#33ff66] cursor-pointer">▶ PLAY</button>
+              <button id="btn-tape-stop" class="hw-btn px-5 py-2.5 rounded text-sm font-bold text-[#ffb020] cursor-pointer">■ STOP</button>
+              <button id="btn-tape-rew" class="hw-btn px-5 py-2.5 rounded text-sm font-bold text-[#92b89c] cursor-pointer">◀◀ REW</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. PRIMER PLANO: ARCHIVADOR Y DOCUMENTOS FÍSICOS -->
+        <section id="view-files" class="hidden metal-chassis w-full max-w-4xl rounded-lg p-4 sm:p-6 flex flex-col gap-4 my-auto max-h-[85vh]">
+          <div class="flex flex-wrap justify-between items-center border-b border-[#444b48] pb-2 gap-2">
+            <h2 class="text-base sm:text-lg font-bold text-[#ffb020]">ARCHIVO DOCUMENTAL // ESTACIÓN SIERRA-04</h2>
+            <span id="drawer-status-text" class="text-xs text-[#92b89c]">CAJÓN INFERIOR: CERRADO CON LLAVE</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 overflow-hidden">
+            <!-- Lista de carpetas (4 cols) -->
+            <div id="doc-folder-list" class="md:col-span-4 flex flex-col gap-2 overflow-y-auto pr-1">
+              <!-- Carpetas generadas por JS -->
+            </div>
+
+            <!-- Visor de papel mecanografiado (8 cols) -->
+            <div id="doc-paper-viewer" class="md:col-span-8 paper-sheet rounded p-5 sm:p-7 overflow-y-auto max-h-[58vh] text-xs sm:text-sm leading-relaxed">
+              <!-- Contenido del documento seleccionado -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. PRIMER PLANO: TELÉFONO FIJO DE DISCO -->
+        <section id="view-phone" class="hidden metal-chassis w-full max-w-xl rounded-lg p-5 flex flex-col gap-4 my-auto">
+          <div class="flex justify-between items-center border-b border-[#444b48] pb-2">
+            <h2 class="text-base sm:text-lg font-bold text-[#33ff66]">LÍNEA TELEFÓNICA INTERNA // RED ANALÓGICA</h2>
+            <span id="phone-line-status" class="text-xs text-[#ff2e2e]">CABLE SECCIONADO</span>
+          </div>
+
+          <div class="metal-inset rounded p-4 flex flex-col items-center text-center gap-4">
+            <div class="text-xs sm:text-sm text-[#a6d4b2] leading-relaxed" id="phone-description">
+              Un teléfono de disco negro de fabricación industrial. El cable gris que debería conectarlo a la roseta de la pared está cortado limpiamente; los hilos de cobre asoman al aire.
+            </div>
+
+            <div id="phone-call-transcript" class="w-full min-h-[72px] p-3 rounded bg-[#060807] border border-[#2e3833] text-xs sm:text-sm text-[#ffb020] flex items-center justify-center">
+              [ AURICULAR COLGADO ]
+            </div>
+
+            <div class="flex gap-3">
+              <button id="btn-phone-pickup" class="hw-btn px-5 py-2.5 rounded text-sm font-bold text-[#33ff66] cursor-pointer">
+                [ DESCOLGAR AURICULAR ]
+              </button>
+              <button id="btn-phone-hangup" class="hw-btn px-5 py-2.5 rounded text-sm text-[#92b89c] cursor-pointer">
+                [ COLGAR ]
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. PRIMER PLANO: RELOJ DE PARED ANALÓGICO -->
+        <section id="view-clock" class="hidden metal-chassis w-full max-w-lg rounded-lg p-5 flex flex-col items-center text-center gap-4 my-auto">
+          <h2 class="text-base sm:text-lg font-bold text-[#ffb020] w-full border-b border-[#444b48] pb-2">
+            CRONÓMETRO MAESTRO DE CABINA
+          </h2>
+          <div class="text-4xl sm:text-5xl font-bold text-[#ffb020] amber-glow py-2" id="closeup-clock-digital">
+            02:00:00
+          </div>
+          <p id="clock-observation-text" class="text-xs sm:text-sm text-[#a6d4b2] leading-relaxed">
+            Un reloj electromecánico sincronizado con la red eléctrica de la estación. Su segundero avanza con un chasquido metálico constante.
+          </p>
+        </section>
+
+        <!-- 7. PRIMER PLANO: VENTANA BLINDADA Y DISYUNTOR DE ALTA TENSIÓN -->
+        <section id="view-window" class="hidden metal-chassis w-full max-w-2xl rounded-lg p-5 flex flex-col gap-4 my-auto">
+          <div class="flex justify-between items-center border-b border-[#444b48] pb-2">
+            <h2 class="text-base sm:text-lg font-bold text-[#ff2e2e]">TORRE DE TRANSMISIÓN Y PANEL DE ALTA TENSIÓN</h2>
+            <span id="beacon-status-label" class="text-xs text-[#ffb020]">BALIZA: PULSO REGULAR</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Observación de la torre -->
+            <div class="metal-inset rounded p-4 flex flex-col justify-between gap-3">
+              <div class="text-xs text-[#8aa392] uppercase tracking-wider">OBSERVACIÓN EXTERIOR</div>
+              <p id="tower-observation-text" class="text-xs sm:text-sm text-[#c4ded0] leading-relaxed">
+                A través del cristal blindado empapado por la lluvia, la torre de acero de 65 metros se recorta contra las nubes bajas. Su baliza roja parpadea cada dos segundos.
+              </p>
+              <div class="text-[11px] text-[#ffb020] border-t border-[#2e3833] pt-2">
+                POTENCIA DE ANTENA: 15.0 kW // PORTADORA PRINCIPAL
+              </div>
+            </div>
+
+            <!-- Control del Disyuntor / Condensadores -->
+            <div class="metal-inset rounded p-4 flex flex-col justify-between gap-3 border border-[#ff2e2e]/30">
+              <div class="text-xs text-[#ff2e2e] font-bold uppercase tracking-wider">DISYUNTOR Y CONDENSADORES</div>
+              <p class="text-xs text-[#92b89c]">
+                Control físico del banco de condensadores de alta tensión del transmisor principal.
+              </p>
+              <div class="bg-[#080a09] p-2.5 rounded border border-[#343a37] text-center">
+                <div class="text-[10px] text-[#8aa392]">ESTADO DEL CIRCUITO</div>
+                <div id="breaker-state-label" class="text-sm font-bold text-[#33ff66] mt-0.5">NORMAL (ESTABLE)</div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <button id="btn-breaker-normal" class="hw-btn py-2 px-3 rounded text-xs font-bold text-[#33ff66] cursor-pointer">
+                  [ POSICIÓN I: OPERACIÓN NORMAL ]
+                </button>
+                <button id="btn-breaker-overload" class="hw-btn py-2 px-3 rounded text-xs font-bold text-[#ff2e2e] cursor-pointer">
+                  [ POSICIÓN II: SOBRECARGA CONDENSADORES ]
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- BARRA INFERIOR DE SELECTORES DE CONSOLA (ACCESO DIRECTO SIEMPRE VISIBLE) -->
+    <nav class="relative z-30 bg-[#111513]/95 border-t border-[#2e3833] px-2 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+      <button data-nav="room" class="nav-console-btn hw-btn active px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs font-bold text-[#33ff66] cursor-pointer">
+        [1] CABINA
+      </button>
+      <button data-nav="radio" class="nav-console-btn hw-btn px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs font-bold text-[#ffb020] cursor-pointer">
+        [2] RADIO
+      </button>
+      <button data-nav="crt" class="nav-console-btn hw-btn px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs font-bold text-[#33ff66] cursor-pointer">
+        [3] TERMINAL CRT
+      </button>
+      <button data-nav="tape" class="nav-console-btn hw-btn px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs text-[#c4ded0] cursor-pointer">
+        [4] GRABADORA
+      </button>
+      <button data-nav="files" class="nav-console-btn hw-btn px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs text-[#c4ded0] cursor-pointer">
+        [5] ARCHIVOS
+      </button>
+      <button data-nav="phone" class="nav-console-btn hw-btn px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs text-[#c4ded0] cursor-pointer">
+        [6] TELÉFONO
+      </button>
+      <button data-nav="window" class="nav-console-btn hw-btn px-2.5 sm:px-3 py-1.5 rounded text-[11px] sm:text-xs text-[#c4ded0] cursor-pointer">
+        [7] TORRE/ENERGÍA
+      </button>
+    </nav>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL DE CONFIGURACIÓN DE AUDIO / PAUSA                               -->
+  <!-- ===================================================================== -->
+  <div id="modal-audio" class="hidden fixed inset-0 bg-[#040605]/90 z-50 flex items-center justify-center p-4">
+    <div class="metal-chassis w-full max-w-md rounded-lg p-6 flex flex-col gap-5">
+      <div class="flex justify-between items-center border-b border-[#444b48] pb-2">
+        <h3 class="text-lg font-bold text-[#33ff66]">SISTEMA // MEZCLADOR DE AUDIO</h3>
+        <button id="btn-close-audio" class="text-[#ff2e2e] font-bold px-2 py-1 cursor-pointer">[ X ]</button>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm">
+        <div>
+          <div class="flex justify-between mb-1">
+            <span>VOLUMEN MAESTRO</span>
+            <span id="vol-label-master" class="text-[#ffb020]">85%</span>
+          </div>
+          <input id="vol-master" type="range" min="0" max="100" value="85" class="w-full accent-[#33ff66] cursor-pointer" />
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1">
+            <span>RADIO Y ESTÁTICA</span>
+            <span id="vol-label-radio" class="text-[#ffb020]">80%</span>
+          </div>
+          <input id="vol-radio" type="range" min="0" max="100" value="80" class="w-full accent-[#ffb020] cursor-pointer" />
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1">
+            <span>AMBIENTE, LLUVIA Y ZUMBIDO CRT</span>
+            <span id="vol-label-ambient" class="text-[#ffb020]">70%</span>
+          </div>
+          <input id="vol-ambient" type="range" min="0" max="100" value="70" class="w-full accent-[#33ff66] cursor-pointer" />
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1">
+            <span>EFECTOS MECÁNICOS E INTERRUPTORES</span>
+            <span id="vol-label-sfx" class="text-[#ffb020]">85%</span>
+          </div>
+          <input id="vol-sfx" type="range" min="0" max="100" value="85" class="w-full accent-[#33ff66] cursor-pointer" />
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-between gap-2 pt-3 border-t border-[#444b48]">
+        <button id="btn-restart-shift" class="hw-btn px-3 py-2 rounded text-xs text-[#ff2e2e] cursor-pointer">
+          [ REINICIAR TURNO ]
+        </button>
+        <button id="btn-resume-audio" class="hw-btn px-5 py-2 rounded text-xs sm:text-sm font-bold text-[#33ff66] cursor-pointer">
+          [ CONTINUAR ]
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL DE ARCHIVO DE FINALES DESCUBIERTOS                              -->
+  <!-- ===================================================================== -->
+  <div id="modal-endings" class="hidden fixed inset-0 bg-[#040605]/90 z-50 flex items-center justify-center p-4">
+    <div class="metal-chassis w-full max-w-lg rounded-lg p-6 flex flex-col gap-4">
+      <div class="flex justify-between items-center border-b border-[#444b48] pb-2">
+        <h3 class="text-lg font-bold text-[#ffb020]">ARCHIVO DE DESENLACES // SIERRA-04</h3>
+        <button id="btn-close-endings" class="text-[#ff2e2e] font-bold px-2 py-1 cursor-pointer">[ X ]</button>
+      </div>
+      <div id="endings-archive-list" class="space-y-3 text-xs sm:text-sm">
+        <!-- Generado dinámicamente desde localStorage -->
+      </div>
+      <div class="text-right pt-2">
+        <button id="btn-close-endings-2" class="hw-btn px-4 py-2 rounded text-xs text-[#33ff66] cursor-pointer">[ CERRAR ]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PANTALLA 3: DESENLACE / FINAL DEL TURNO                               -->
+  <!-- ===================================================================== -->
+  <section id="screen-ending" class="hidden fixed inset-0 bg-[#060807] z-50 flex flex-col items-center justify-center p-6 text-center">
+    <div class="max-w-2xl w-full space-y-6 border border-[#33ff66]/40 bg-[#090d0b] p-6 sm:p-10 rounded-lg shadow-2xl">
+      <div id="ending-code" class="text-xs tracking-[0.28em] text-[#ffb020] uppercase">
+        REGISTRO FINAL // SIERRA-04
+      </div>
+      <h2 id="ending-title" class="text-3xl sm:text-5xl font-bold text-[#33ff66] phosphor-glow" style="font-family: 'VT323', monospace;">
+        FINAL I — PROTOCOLO VIGÍA
+      </h2>
+      <div class="h-px w-full bg-[#198033]/50"></div>
+      <p id="ending-narrative" class="text-sm sm:text-base text-[#c4ded0] leading-relaxed text-left whitespace-pre-line">
+      </p>
+      <div id="ending-epilogue" class="p-3 rounded bg-[#050706] border border-[#2e3833] text-xs text-[#ffb020] font-mono">
+      </div>
+      <div class="pt-4 flex flex-wrap justify-center gap-4">
+        <button id="btn-ending-replay" class="hw-btn px-6 py-3 rounded text-sm font-bold text-[#33ff66] cursor-pointer">
+          [ VOLVER AL INICIO DEL TURNO ]
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- MOTOR DE AUDIO PROCEDURAL Y LÓGICA COMPLETA DE DEAD FREQUENCY         -->
+  <!-- ===================================================================== -->
+  <script>
+    /**
+     * =========================================================================
+     * 1. MOTOR SONORO PROCEDURAL (WEB AUDIO API)
+     * Genera ruido estático filtrado, heterodino analógico, zumbido de 60Hz,
+     * ventilador CRT, lluvia en metal, tictac de reloj, mecánica de casete,
+     * timbre telefónico y modulación de voz de radio sin archivos externos.
+     * =========================================================================
+     */
+    class WebAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.initialized = false;
+        this.mutedBySilence = false;
+
+        this.volumes = {
+          master: 0.85,
+          radio: 0.80,
+          ambient: 0.70,
+          sfx: 0.85
+        };
+
+        // Nodos principales
+        this.masterGain = null;
+        this.radioGain = null;
+        this.ambientGain = null;
+        this.sfxGain = null;
+
+        // Nodos dinámicos de radio
+        this.staticGain = null;
+        this.staticFilter = null;
+        this.heterodyneOsc = null;
+        this.heterodyneGain = null;
+        this.carrierToneOsc = null;
+        this.carrierToneGain = null;
+        this.voiceModTimer = null;
+
+        // Nodos ambientales
+        this.humGain = null;
+        this.rainGain = null;
+        this.clockInterval = null;
+        this.phoneRingInterval = null;
+      }
+
+      init() {
+        if (this.initialized) {
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          return;
+        }
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+
+          this.masterGain = this.ctx.createGain();
+          this.masterGain.gain.value = this.volumes.master;
+          this.masterGain.connect(this.ctx.destination);
+
+          this.radioGain = this.ctx.createGain();
+          this.radioGain.gain.value = 0.0; // Solo suena al acercarse o abrir radio
+          this.radioGain.connect(this.masterGain);
+
+          this.ambientGain = this.ctx.createGain();
+          this.ambientGain.gain.value = this.volumes.ambient;
+          this.ambientGain.connect(this.masterGain);
+
+          this.sfxGain = this.ctx.createGain();
+          this.sfxGain.gain.value = this.volumes.sfx;
+          this.sfxGain.connect(this.masterGain);
+
+          this._setupAmbientLayers();
+          this._setupRadioLayers();
+
+          this.initialized = true;
+        } catch (e) {
+          console.warn('Web Audio API no disponible:', e);
+        }
+      }
+
+      _createNoiseBuffer(seconds = 3, type = 'white') {
+        const sampleRate = this.ctx.sampleRate;
+        const length = sampleRate * seconds;
+        const buffer = this.ctx.createBuffer(1, length, sampleRate);
+        const data = buffer.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+
+        for (let i = 0; i < length; i++) {
+          const white = Math.random() * 2 - 1;
+          if (type === 'pink') {
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            b3 = 0.86650 * b3 + white * 0.3104856;
+            b4 = 0.55000 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.0168980;
+            data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+            b6 = white * 0.115926;
+          } else {
+            data[i] = white * 0.35;
+          }
+        }
+        return buffer;
+      }
+
+      _setupAmbientLayers() {
+        // 1. Zumbido eléctrico de transformador y CRT (60Hz + armónico 120Hz)
+        const humOsc1 = this.ctx.createOscillator();
+        const humOsc2 = this.ctx.createOscillator();
+        humOsc1.type = 'sine';
+        humOsc1.frequency.value = 60;
+        humOsc2.type = 'triangle';
+        humOsc2.frequency.value = 120;
+
+        const humFilter = this.ctx.createBiquadFilter();
+        humFilter.type = 'lowpass';
+        humFilter.frequency.value = 180;
+
+        this.humGain = this.ctx.createGain();
+        this.humGain.gain.value = 0.065;
+
+        humOsc1.connect(humFilter);
+        humOsc2.connect(humFilter);
+        humFilter.connect(this.humGain);
+        this.humGain.connect(this.ambientGain);
+        humOsc1.start();
+        humOsc2.start();
+
+        // 2. Ventilador CRT + Lluvia exterior filtrada
+        const pinkNoise = this.ctx.createBufferSource();
+        pinkNoise.buffer = this._createNoiseBuffer(4, 'pink');
+        pinkNoise.loop = true;
+
+        const rainFilter = this.ctx.createBiquadFilter();
+        rainFilter.type = 'bandpass';
+        rainFilter.frequency.value = 950;
+        rainFilter.Q.value = 0.65;
+
+        this.rainGain = this.ctx.createGain();
+        this.rainGain.gain.value = 0.18;
+
+        pinkNoise.connect(rainFilter);
+        rainFilter.connect(this.rainGain);
+        this.rainGain.connect(this.ambientGain);
+        pinkNoise.start();
+      }
+
+      _setupRadioLayers() {
+        // 1. Estática de banda VHF
+        const whiteNoise = this.ctx.createBufferSource();
+        whiteNoise.buffer = this._createNoiseBuffer(3, 'white');
+        whiteNoise.loop = true;
+
+        this.staticFilter = this.ctx.createBiquadFilter();
+        this.staticFilter.type = 'bandpass';
+        this.staticFilter.frequency.value = 1400;
+        this.staticFilter.Q.value = 0.9;
+
+        this.staticGain = this.ctx.createGain();
+        this.staticGain.gain.value = 0.22;
+
+        whiteNoise.connect(this.staticFilter);
+        this.staticFilter.connect(this.staticGain);
+        this.staticGain.connect(this.radioGain);
+        whiteNoise.start();
+
+        // 2. Silbido heterodino al acercarse a una portadora
+        this.heterodyneOsc = this.ctx.createOscillator();
+        this.heterodyneOsc.type = 'sine';
+        this.heterodyneOsc.frequency.value = 1200;
+
+        this.heterodyneGain = this.ctx.createGain();
+        this.heterodyneGain.gain.value = 0.0;
+
+        this.heterodyneOsc.connect(this.heterodyneGain);
+        this.heterodyneGain.connect(this.radioGain);
+        this.heterodyneOsc.start();
+
+        // 3. Tono de portadora / telemetría de la estación sintonizada
+        this.carrierToneOsc = this.ctx.createOscillator();
+        this.carrierToneOsc.type = 'sine';
+        this.carrierToneOsc.frequency.value = 440;
+
+        this.carrierToneGain = this.ctx.createGain();
+        this.carrierToneGain.gain.value = 0.0;
+
+        this.carrierToneOsc.connect(this.carrierToneGain);
+        this.carrierToneGain.connect(this.radioGain);
+        this.carrierToneOsc.start();
+      }
+
+      setVolume(channel, value01) {
+        this.volumes[channel] = value01;
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        if (channel === 'master') this.masterGain.gain.setTargetAtTime(value01, now, 0.05);
+        if (channel === 'ambient' && !this.mutedBySilence) this.ambientGain.gain.setTargetAtTime(value01, now, 0.05);
+        if (channel === 'sfx') this.sfxGain.gain.setTargetAtTime(value01, now, 0.05);
+      }
+
+      /**
+       * Silencio intencional antes de momentos de terror clave
+       */
+      triggerIntentionalSilence(durationMs = 2400) {
+        if (!this.initialized) return;
+        this.mutedBySilence = true;
+        const now = this.ctx.currentTime;
+        this.ambientGain.gain.setTargetAtTime(0.001, now, 0.08);
+        setTimeout(() => {
+          this.mutedBySilence = false;
+          if (this.ctx) {
+            this.ambientGain.gain.setTargetAtTime(this.volumes.ambient, this.ctx.currentTime, 0.45);
+          }
+        }, durationMs);
+      }
+
+      /**
+       * Actualiza la acústica del sintonizador según cercanía a una portadora activa y Squelch
+       */
+      updateRadioAcoustics(isRadioFocused, signalStrength, deltaFreq, squelchLevel, stationType) {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+
+        // El audio de radio se escucha fuerte en vista de radio y tenue como monitor de cabina fuera de ella
+        const baseRadioPresence = isRadioFocused ? this.volumes.radio : this.volumes.radio * 0.24;
+        this.radioGain.gain.setTargetAtTime(baseRadioPresence, now, 0.06);
+
+        // Estática inversa a la claridad de señal, atenuada por Squelch
+        const squelchNorm = squelchLevel / 60;
+        let rawStatic = Math.max(0.02, (1 - signalStrength * 0.86) * 0.28);
+        if (signalStrength < squelchNorm * 0.75) {
+          rawStatic *= 0.18; // Squelch silencia estática vacía
+        }
+        this.staticGain.gain.setTargetAtTime(rawStatic, now, 0.05);
+        this.staticFilter.frequency.setTargetAtTime(1100 + (1 - signalStrength) * 900, now, 0.08);
+
+        // Silbido heterodino cuando estamos a entre 0.05 y 0.8 MHz de una señal
+        const absDelta = Math.abs(deltaFreq);
+        if (absDelta > 0.02 && absDelta < 0.85) {
+          const hetFreq = 180 + absDelta * 2600;
+          const hetVol = (1 - absDelta / 0.85) * 0.055;
+          this.heterodyneOsc.frequency.setTargetAtTime(hetFreq, now, 0.04);
+          this.heterodyneGain.gain.setTargetAtTime(hetVol, now, 0.04);
+        } else {
+          this.heterodyneGain.gain.setTargetAtTime(0, now, 0.05);
+        }
+
+        // Tono característico de la portadora cuando está sintonizada
+        if (signalStrength > 0.55) {
+          let toneFreq = 520;
+          let toneVol = 0.025 * signalStrength;
+          if (stationType === 'beacon') {
+            toneFreq = 880;
+            toneVol = 0.035 * signalStrength;
+          } else if (stationType === 'dead') {
+            toneFreq = 74; // Sub-grave hipnótico para 107.9 MHz
+            toneVol = 0.14 * signalStrength;
+          } else if (stationType === 'mirror') {
+            toneFreq = 148;
+            toneVol = 0.05 * signalStrength;
+          }
+          this.carrierToneOsc.frequency.setTargetAtTime(toneFreq, now, 0.08);
+          this.carrierToneGain.gain.setTargetAtTime(toneVol, now, 0.08);
+        } else {
+          this.carrierToneGain.gain.setTargetAtTime(0, now, 0.08);
+        }
+      }
+
+      /**
+       * Síntesis de voz filtrada de radio en español + pulsos vocales procedurales
+       */
+      speakRadioTransmission(text, pitch = 0.88, rate = 0.94, isEntity = false) {
+        this.stopSpeech();
+        if (!text) return;
+
+        // Pulso vocal procedural sincronizado (garantiza audio incluso sin voces TTS en el navegador)
+        if (this.initialized) {
+          let syllables = Math.min(28, Math.max(6, Math.floor(text.length / 5)));
+          let count = 0;
+          this.voiceModTimer = setInterval(() => {
+            if (count >= syllables || !this.ctx) {
+              clearInterval(this.voiceModTimer);
+              return;
+            }
+            count++;
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const filter = this.ctx.createBiquadFilter();
+            const gain = this.ctx.createGain();
+
+            osc.type = isEntity ? 'sawtooth' : 'triangle';
+            const baseF = isEntity ? 92 + Math.random() * 25 : 135 + Math.random() * 55;
+            osc.frequency.setValueAtTime(baseF, now);
+
+            filter.type = 'bandpass';
+            filter.frequency.value = isEntity ? 780 : 1250;
+            filter.Q.value = 2.4;
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.045, now + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.radioGain);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          }, 175);
+        }
+
+        // SpeechSynthesis en español si está soportado
+        if ('speechSynthesis' in window) {
+          try {
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'es-ES';
+            utter.pitch = pitch;
+            utter.rate = rate;
+            utter.volume = Math.min(1, this.volumes.master * this.volumes.radio);
+            window.speechSynthesis.speak(utter);
+          } catch (e) {
+            // Fallback silencioso a pulsos procedurales
+          }
+        }
+      }
+
+      stopSpeech() {
+        if (this.voiceModTimer) {
+          clearInterval(this.voiceModTimer);
+          this.voiceModTimer = null;
+        }
+        if ('speechSynthesis' in window) {
+          try {
+            window.speechSynthesis.cancel();
+          } catch (e) {}
+        }
+      }
+
+      playClick(pitch = 720, duration = 0.035, vol = 0.16) {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(pitch, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + duration);
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(this.sfxGain);
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      playSwitchHeavy() {
+        this.playClick(340, 0.06, 0.28);
+        setTimeout(() => this.playClick(520, 0.04, 0.2), 35);
+      }
+
+      playDegaussThump() {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(135, now);
+        osc.frequency.exponentialRampToValueAtTime(38, now + 0.45);
+        gain.gain.setValueAtTime(0.32, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+        osc.connect(gain);
+        gain.connect(this.sfxGain);
+        osc.start(now);
+        osc.stop(now + 0.5);
+      }
+
+      playClockTick(isHigh = true) {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(isHigh ? 1450 : 1120, now);
+        gain.gain.setValueAtTime(0.045, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+        osc.connect(gain);
+        gain.connect(this.ambientGain);
+        osc.start(now);
+        osc.stop(now + 0.03);
+      }
+
+      playAnomalyStinger() {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(95, now);
+        osc.frequency.linearRampToValueAtTime(42, now + 1.4);
+        gain.gain.setValueAtTime(0.26, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+        osc.connect(gain);
+        gain.connect(this.sfxGain);
+        osc.start(now);
+        osc.stop(now + 1.55);
+      }
+
+      startPhoneRinging() {
+        if (this.phoneRingInterval) return;
+        const ringBurst = () => {
+          if (!this.initialized) return;
+          let pulses = 0;
+          const sub = setInterval(() => {
+            if (pulses > 14) {
+              clearInterval(sub);
+              return;
+            }
+            pulses++;
+            this.playClick(pulses % 2 === 0 ? 1950 : 1620, 0.045, 0.24);
+          }, 55);
+        };
+        ringBurst();
+        this.phoneRingInterval = setInterval(ringBurst, 3400);
+      }
+
+      stopPhoneRinging() {
+        if (this.phoneRingInterval) {
+          clearInterval(this.phoneRingInterval);
+          this.phoneRingInterval = null;
+        }
+      }
+    }
+
+    const audio = new WebAudioEngine();
+
+    /**
+     * =========================================================================
+     * 2. BASE DE DATOS NARRATIVA (TRANSMISIONES, DOCUMENTOS, CINTAS Y FINALES)
+     * =========================================================================
+     */
+    const FREQUENCIES_DB = [
+      {
+        freq: 88.4,
+        id: 'BALIZA SIERRA-04',
+        type: 'beacon',
+        minPhase: 1,
+        pitch: 1.05,
+        rate: 0.98,
+        isEntity: false,
+        transcript: 'BALIZA DE TELEMETRÍA SIERRA-04. HORA OFICIAL: 02:15. PORTADORA ESTABLE. NINGUNA INCIDENCIA REGISTRADA EN EL VALLE.',
+        logSummary: '88.4 MHz — Baliza de control verificada. Sistema operativo normal antes de la anomalía de las 02:17.'
+      },
+      {
+        freq: 91.7,
+        id: 'CANAL EMERGENCIA [14-NOV-1982]',
+        type: 'archive',
+        minPhase: 2,
+        pitch: 0.82,
+        rate: 0.92,
+        isEntity: false,
+        transcript: 'Aquí Esteban Vega, estación Sierra-01... son las 02:17... corté los fusibles pero el transmisor sigue emitiendo sin corriente. Hay algo dentro de la onda de retorno. No es estática... está aprendiendo a imitar mi voz...',
+        logSummary: '91.7 MHz — Grabación imposible del 14/11/1982. Esteban Vega afirma que no hubo incendio: algo habita en la portadora.'
+      },
+      {
+        freq: 94.2,
+        id: 'PORTADORA FRAGMENTADA ALFA',
+        type: 'fragment',
+        minPhase: 2,
+        pitch: 0.90,
+        rate: 0.90,
+        isEntity: false,
+        transcript: '...cuando la torre marque el ciclo de diecisiete años... suma nueve punto seis megahercios a esta portadora... clave parcial: OMEGA-7... no dejes que cruce al repetidor regional...',
+        logSummary: '94.2 MHz — Fragmento Alfa. Indica sumar +9.6 MHz a esta portadora. Clave parcial: OMEGA-7.'
+      },
+      {
+        freq: 103.8,
+        id: 'ARMÓNICO INVERSO BETA',
+        type: 'fragment',
+        minPhase: 2,
+        pitch: 0.90,
+        rate: 0.90,
+        isEntity: false,
+        transcript: '...para abrir el canal maestro en ciento siete punto nueve... clave parcial: NODO-04... no confíes en el informe del incendio... mira debajo de tu propio escritorio...',
+        logSummary: '103.8 MHz — Armónico Beta (94.2 + 9.6 MHz). Revela coordenada maestra 107.9 MHz. Clave parcial: NODO-04.'
+      },
+      {
+        freq: 97.5,
+        id: 'ECO DE CABINA // FRECUENCIA ESPEJO',
+        type: 'mirror',
+        minPhase: 3,
+        pitch: 0.85,
+        rate: 0.88,
+        isEntity: true,
+        transcript: 'Te escucho respirar frente al sintonizador. El reloj de tu espalda se detuvo a las dos y diecisiete, igual que hace diecisiete años. El teléfono de tu derecha no tiene cable... pero va a sonar ahora mismo.',
+        logSummary: '97.5 MHz — Frecuencia Espejo. Retransmite el sonido de esta cabina y conoce cada uno de mis movimientos.'
+      },
+      {
+        freq: 107.9,
+        id: 'LA FRECUENCIA MUERTA // CANAL MAESTRO',
+        type: 'dead',
+        minPhase: 4,
+        pitch: 0.68,
+        rate: 0.82,
+        isEntity: true,
+        transcript: 'Diecisiete años encerrada en el cobre y el hormigón. Estás solo en la montaña, operador. Puedes volver a cerrar la jaula sobre ti mismo, fundir las bobinas para matarnos a ambos... o abrir la antena y dejarnos hablar con todo el valle.',
+        logSummary: '107.9 MHz — La Frecuencia Muerta. Contacto directo establecido. El terminal TORRE_CTRL.CMD espera una decisión.'
+      }
+    ];
+
+    const DOCUMENTS_DB = [
+      {
+        id: 'manual_1999',
+        title: 'Manual Operativo Sierra-04 (1999)',
+        minPhase: 1,
+        stamp: 'USO INTERNO',
+        content: `
+          <div class="flex justify-between items-start mb-4 border-b border-black/30 pb-2">
+            <div>
+              <div class="font-bold text-base">TELECOMUNICACIONES DEL VALLE S.A.</div>
+              <div class="text-xs">PROTOCOLO DE GUARDIA NOCTURNA — ESTACIÓN SIERRA-04</div>
+            </div>
+            <span class="stamp-red text-xs">OFICIAL 1999</span>
+          </div>
+          <p class="mb-3"><strong>1. OBJETIVO DEL TURNO:</strong> El operador de guardia (00:00 a 06:00) deberá supervisar la integridad de las emisiones VHF/FM mediante el transceptor <em>Marconi-99</em> y el terminal <em>REL-OS v2.4</em>.</p>
+          <p class="mb-3"><strong>2. COMPROBACIÓN OBLIGATORIA:</strong> A las 02:00 AM, sintonice la baliza meteorológica y de control interno en <strong>88.4 MHz</strong> y regístrela en la bitácora del terminal CRT.</p>
+          <p class="mb-3"><strong>3. CONTROLES DEL RECEPTOR:</strong> Mantenga activo el interruptor <strong>AFC</strong> para fijar portadoras débiles y ajuste el nivel de <strong>SQUELCH</strong> para filtrar ruido atmosférico.</p>
+          <p class="mt-4 p-2 border border-black/30 bg-black/5 text-xs">
+            <em>NOTA MANUSCRITA EN EL MARGEN:</em> "Si escuchas voces fuera de las bandas comerciales pasadas las 02:17, NO intentes apagar el transmisor sin consultar primero el archivo técnico."
+          </p>
+        `
+      },
+      {
+        id: 'incident_1982',
+        title: 'Informe Incidente Sierra-01 (1982)',
+        minPhase: 1,
+        stamp: 'CLAUSURADO NOV-1982',
+        content: `
+          <div class="flex justify-between items-start mb-4 border-b border-black/30 pb-2">
+            <div>
+              <div class="font-bold text-base">MINISTERIO DE OBRAS Y COMUNICACIONES</div>
+              <div class="text-xs">EXPEDIENTE DE SINIESTRO Nº 82-114 // 16 DE NOVIEMBRE DE 1982</div>
+            </div>
+            <span class="stamp-red text-xs">CLAUSURADO</span>
+          </div>
+          <p class="mb-3"><strong>ASUNTO:</strong> Destrucción por incendio eléctrico de la antigua estación repetidora <em>Sierra-01</em>.</p>
+          <p class="mb-3"><strong>RESUMEN DE HECHOS:</strong> Durante la madrugada del 14 de noviembre de 1982, aproximadamente a las <strong>02:17 horas</strong>, un cortocircuito en el banco de condensadores provocó un incendio de rápida propagación en la sala de control.</p>
+          <p class="mb-3"><strong>VÍCTIMAS:</strong> El único técnico de guardia, <strong>Esteban Vega (34 años)</strong>, falleció en el interior de la cabina al quedar bloqueada la puerta blindada por la dilatación térmica.</p>
+          <p class="mb-3"><strong>RESOLUCIÓN:</strong> Las instalaciones quedaron calcinadas e inservibles. Se ordenó el sellado perimetral de la parcela y la prohibición de emitir en la banda maestra de <strong>107.9 MHz</strong>.</p>
+        `
+      },
+      {
+        id: 'harmonics_guide',
+        title: 'Tabla de Portadoras Divididas',
+        minPhase: 1,
+        stamp: 'BOLETÍN TÉCNICO',
+        content: `
+          <div class="flex justify-between items-start mb-4 border-b border-black/30 pb-2">
+            <div>
+              <div class="font-bold text-base">DEPARTAMENTO DE INGENIERÍA DE RADIO</div>
+              <div class="text-xs">ANÁLISIS DE MODULACIÓN EN BANDA LATERAL DIVIDIDA</div>
+            </div>
+            <span class="stamp-red text-xs">TÉCNICO</span>
+          </div>
+          <p class="mb-3">En sistemas de cifrado analógico de emergencia, una señal crítica se divide en dos subportadoras separadas por un intervalo armónico fijo de <strong>Δf = 9.6 MHz</strong>.</p>
+          <p class="mb-3">Ninguna de las dos frecuencias contiene la coordenada completa por separado. Para reconstruir la portadora maestra:</p>
+          <ol class="list-decimal ml-5 mb-3 space-y-1">
+            <li>Localice y registre ambas frecuencias complementarias en el transceptor.</li>
+            <li>Abra la utilidad <strong>ESPECTRO.EXE</strong> en el terminal CRT.</li>
+            <li>Ejecute la correlación armónica entre ambas señales para revelar la frecuencia oculta.</li>
+          </ol>
+        `
+      },
+      {
+        id: 'red_dossier',
+        title: 'EXPEDIENTE ROJO: PROYECTO VIGÍA',
+        minPhase: 3,
+        stamp: 'ULTRA SECRETO',
+        content: `
+          <div class="flex justify-between items-start mb-4 border-b border-red-900/40 pb-2">
+            <div>
+              <div class="font-bold text-base text-red-900">DIRECCIÓN ESPECIAL DE CONTENCIÓN</div>
+              <div class="text-xs text-red-950">ANEXO CLASIFICADO — NO ARCHIVAR EN RED</div>
+            </div>
+            <span class="stamp-red text-xs">ULTRA SECRETO</span>
+          </div>
+          <p class="mb-3"><strong>1. LA MENTIRA DE 1982:</strong> La estación <em>Sierra-01</em> jamás sufrió un incendio. Las paredes de esta misma cabina fueron revestidas con hormigón plomado y renombradas como <strong>Sierra-04</strong>.</p>
+          <p class="mb-3"><strong>2. LA ANOMALÍA ACÚSTICA:</strong> El 14 de noviembre de 1982 a las 02:17, una inteligencia parásita emergió dentro de la onda estacionaria de <strong>107.9 MHz</strong>. No puede existir fuera de una portadora modulada, pero si alcanza la red de repetidores del valle se replicará en millones de receptores domésticos.</p>
+          <p class="mb-3"><strong>3. EL CICLO DE 17 AÑOS:</strong> La onda actúa como una jaula electromagnética que requiere presencia humana consciente en la cabina cada 17 años (1982 -> 1999) para recalibrar el bloqueo. Esteban Vega no murió en un incendio: aceptó quedarse dentro.</p>
+        `
+      }
+    ];
+
+    const CASSETTES_DB = [
+      {
+        id: 'tape_01',
+        label: 'CINTA #01: CALIBRACIÓN Y PROTOCOLO',
+        year: '1999',
+        minPhase: 1,
+        transcript: '«Registro de mantenimiento, noviembre de 1999. El transceptor Marconi-99 ha sido recalibrado. Si detectas ecos metálicos entre 94 y 104 megahercios, utiliza el módulo ESPECTRO.EXE del ordenador para cruzar las señales. Recuerda: nunca conectes la portadora 107.9 a la red externa.»'
+      },
+      {
+        id: 'tape_04',
+        label: 'CINTA #04: SIN ETIQUETA [TU PROPIA VOZ]',
+        year: '¿1999?',
+        minPhase: 3,
+        transcript: '«Si estás escuchando esto... soy yo. Eres tú. La cinta estaba en el cajón porque yo mismo la dejé antes de que el reloj volviera a las 02:17. La anomalía de 107.9 MHz intenta engañarte para que abras la emisión al valle. Tienes tres opciones en TORRE_CTRL.CMD: mantener la jaula cerrada otros diecisiete años como hizo Esteban... sobrecargar los condensadores junto a la ventana y volar el transmisor contigo dentro... o abrir la frecuencia al mundo. Decide rápido.»'
+      }
+    ];
+
+    const ENDINGS_DB = {
+      vigia: {
+        code: 'FINAL I // PROTOCOLO VIGÍA (CONTENCIÓN)',
+        title: 'FINAL I — EL VIGÍA DEL BUCLE',
+        narrative: `Activaste el bloqueo armónico de portadora manteniendo estable el disyuntor principal.\n\nUn zumbido grave recorrió el hormigón de Sierra-04 mientras la frecuencia 107.9 MHz quedaba nuevamente confinada dentro de la torre. La puerta blindada de la cabina selló sus cerrojos magnéticos desde el exterior.\n\nSobre el escritorio queda una cinta magnética virgen junto a la grabadora TEAC-82. Tomas el micrófono para dejar un mensaje al próximo operador que llegará dentro de diecisiete años, en noviembre de 2016.`,
+        epilogue: 'ESTADO DE LA PORTADORA: CONFINADA // HORA DEL SISTEMA: 02:17 (CICLO RENOVADO)'
+      },
+      ceniza: {
+        code: 'FINAL II // SILENCIO DE CENIZA (PURGA TÉRMICA)',
+        title: 'FINAL II — SILENCIO DE CENIZA',
+        narrative: `Con el banco de condensadores en sobrecarga máxima, ejecutaste la purga térmica total desde TORRE_CTRL.CMD.\n\nLos transformadores de alta tensión estallaron en una cascada de chispas blancas. El monitor CRT implosionó en silencio y el dial ámbar del Marconi-99 se apagó para siempre.\n\nCuando el humo disipó el olor a ozono y cobre fundido, solo quedaba el sonido de la lluvia cayendo sobre una torre muerta. La frecuencia 107.9 MHz jamás volverá a emitir.`,
+        epilogue: 'ESTADO DE LA PORTADORA: DESTRUIDA // FIN DE TRANSMISIÓN EN SIERRA-04'
+      },
+      libre: {
+        code: 'FINAL III // FRECUENCIA LIBRE (EMISIÓN ABIERTA)',
+        title: 'FINAL III — FRECUENCIA LIBRE',
+        narrative: `Abriste el enlace de difusión regional y lanzaste la portadora 107.9 MHz a máxima potencia sobre toda la cordillera.\n\nTras la ventana blindada, la baliza de la torre dejó de parpadear y quedó fija en un rojo carmesí cegador. En el valle inferior, miles de radios domésticas, televisores y teléfonos encendieron sus altavoces al unísono en mitad de la noche.\n\nLa voz dentro de la estática ya no necesita esta habitación. Ahora tiene millones de gargantas.`,
+        epilogue: 'ESTADO DE LA PORTADORA: PROPAGACIÓN GLOBAL // SIERRA-04 VACÍA'
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 3. ESTADO GLOBAL DEL JUEGO Y CONTROLADOR DE PROGRESIÓN
+     * =========================================================================
+     */
+    const state = {
+      phase: 1, // 1: Turno Nocturno, 2: Interferencia, 3: Frecuencia Muerta, 4: Última Transmisión
+      activeView: 'room', // room | radio | crt | tape | files | phone | clock | window
+      clockMinutes: 0, // 02:00 -> avanza hasta 17 (02:17) y se congela
+      clockFrozen: false,
+      clockReversedOnce: false,
+
+      // Estado de Radio
+      freq: 88.0,
+      afc: true,
+      squelch: 15,
+      loggedFreqs: [],
+      harmonicDecoded: false,
+      selectedSpectrumFreqs: [],
+      lastSpokenFreq: null,
+
+      // Estado CRT & Documentos & Cintas
+      crtTab: 'log',
+      logs: [
+        '[02:00] Sistema REL-OS v2.4 inicializado. Operador en puesto Sierra-04.',
+        '[02:01] Condiciones meteorológicas: lluvia intensa, visibilidad reducida.',
+        '[02:02] Pendiente: verificar baliza de control en 88.4 MHz según Manual Operativo.'
+      ],
+      selectedDocId: 'manual_1999',
+      drawerUnlocked: false,
+      currentTapeId: 'tape_01',
+      tapeStatus: 'stopped', // stopped | playing | rewinding
+      tapeCounter: 0,
+      tape04Listened: false,
+
+      // Estado Teléfono y Disyuntor
+      phoneRinging: false,
+      phoneAnswered: false,
+      breakerMode: 'normal', // normal | overload
+
+      // Finales guardados en localStorage
+      unlockedEndings: JSON.parse(localStorage.getItem('dead_frequency_endings') || '[]')
+    };
+
+    /**
+     * =========================================================================
+     * 4. REFERENCIAS DOM Y UTILIDADES DE INTERFAZ
+     * =========================================================================
+     */
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+
+    function addLog(msg, isAlert = false) {
+      const timeStr = state.clockFrozen ? '02:17' : `02:${String(state.clockMinutes).padStart(2, '0')}`;
+      state.logs.push({ time: timeStr, text: msg, alert: isAlert });
+      updateMiniCRT();
+      if (state.activeView === 'crt' && state.crtTab === 'log') {
+        renderCRTTab();
+      }
+    }
+
+    function setHint(text) {
+      $('#hud-hint').textContent = `> ${text}`;
+    }
+
+    function triggerScreenGlitch() {
+      const vp = $('#cabin-viewport');
+      vp.classList.remove('glitch-burst');
+      void vp.offsetWidth;
+      vp.classList.add('glitch-burst');
+      audio.playAnomalyStinger();
+    }
+
+    function updateEndingsBadge() {
+      $('#endings-count-badge').textContent = `${state.unlockedEndings.length}/3`;
+    }
+
+    /**
+     * =========================================================================
+     * 5. NAVEGACIÓN ENTRE CABINA Y VISTAS DE PRIMER PLANO
+     * =========================================================================
+     */
+    function switchView(targetView) {
+      audio.init();
+      audio.playClick(640, 0.03, 0.14);
+
+      state.activeView = targetView;
+
+      // Actualizar botones de barra inferior
+      $$('.nav-console-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.nav === targetView);
+      });
+
+      const backdrop = $('#closeup-backdrop');
+      const backBtn = $('#btn-back-room');
+
+      // Ocultar todas las vistas de primer plano
+      ['radio', 'crt', 'tape', 'files', 'phone', 'clock', 'window'].forEach(v => {
+        $(`#view-${v}`).classList.add('hidden');
+      });
+
+      if (targetView === 'room') {
+        backdrop.classList.add('hidden');
+        backBtn.classList.add('hidden');
+      } else {
+        backdrop.classList.remove('hidden');
+        backBtn.classList.remove('hidden');
+        $(`#view-${targetView}`).classList.remove('hidden');
+
+        // Refrescar contenido específico al abrir cada equipo
+        if (targetView === 'radio') updateRadioUI();
+        if (targetView === 'crt') renderCRTTab();
+        if (targetView === 'tape') renderTapeUI();
+        if (targetView === 'files') renderFilesUI();
+        if (targetView === 'phone') renderPhoneUI();
+        if (targetView === 'clock') renderClockUI();
+        if (targetView === 'window') renderWindowUI();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 6. SISTEMA DE RADIOFRECUENCIAS (87.0 - 108.0 MHz) Y OSCILOSCOPIO
+     * =========================================================================
+     */
+    function getAvailableStations() {
+      return FREQUENCIES_DB.filter(s => {
+        if (s.freq === 107.9) return state.harmonicDecoded || state.phase >= 4;
+        return state.phase >= s.minPhase;
+      });
+    }
+
+    function getSignalInfo(freq) {
+      const stations = getAvailableStations();
+      let closest = null;
+      let minDiff = 999;
+
+      for (const st of stations) {
+        const diff = freq - st.freq;
+        if (Math.abs(diff) < Math.abs(minDiff)) {
+          minDiff = diff;
+          closest = st;
+        }
+      }
+
+      if (!closest || Math.abs(minDiff) > 0.75) {
+        return { station: null, strength: 0.04, delta: 99 };
+      }
+
+      // Curva gaussiana de sintonización
+      const bandwidth = state.afc ? 0.34 : 0.22;
+      const strength = Math.max(0.04, Math.exp(-(minDiff * minDiff) / (2 * bandwidth * bandwidth)));
+      return { station: closest, strength, delta: minDiff };
+    }
+
+    function obfuscateText(text, clarity) {
+      if (clarity >= 0.90) return text;
+      const noiseChars = '▓▒░#%&?/@*+~';
+      let out = '';
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === ' ') {
+          out += ' ';
+        } else if (Math.random() < clarity * 1.05) {
+          out += ch;
+        } else {
+          out += noiseChars[Math.floor(Math.random() * noiseChars.length)];
+        }
+      }
+      return out;
+    }
+
+    function setFrequency(newFreq, playDetent = true) {
+      let clamped = Math.max(87.0, Math.min(108.0, Math.round(newFreq * 10) / 10));
+
+      // Efecto magnético sutil del AFC cuando estamos a 0.1 MHz de una estación activa
+      if (state.afc) {
+        const stations = getAvailableStations();
+        for (const st of stations) {
+          if (Math.abs(clamped - st.freq) === 0.1) {
+            clamped = st.freq;
+            break;
+          }
+        }
+      }
+
+      if (clamped !== state.freq) {
+        state.freq = clamped;
+        if (playDetent) audio.playClick(980, 0.015, 0.07);
+      }
+
+      updateRadioUI();
+    }
+
+    function updateRadioUI() {
+      const freqStr = `${state.freq.toFixed(1)} MHz`;
+      $('#radio-freq-display').textContent = freqStr;
+      $('#room-radio-freq-readout').textContent = freqStr;
+
+      // Posición porcentual en la escala (87.0 -> 108.0)
+      const pct = ((state.freq - 87.0) / (108.0 - 87.0)) * 100;
+      $('#radio-dial-cursor').style.left = `${pct}%`;
+
+      // Actualizar aguja SVG en la habitación
+      const roomNeedleX = 740 + (pct / 100) * 265;
+      $('#room-radio-needle').setAttribute('x1', roomNeedleX);
+      $('#room-radio-needle').setAttribute('x2', roomNeedleX);
+
+      // Rotación visual de la perilla
+      const deg = (state.freq - 87.0) * 38;
+      $('#rotary-knob-marker').style.transform = `rotate(${deg}deg)`;
+
+      const { station, strength, delta } = getSignalInfo(state.freq);
+      const clarityPct = Math.round(strength * 100);
+
+      // Aguja S-Meter (-42deg a +42deg)
+      const needleDeg = -42 + strength * 84;
+      $('#smeter-needle').style.transform = `rotate(${needleDeg}deg)`;
+
+      // Actualizar acústica procedural
+      audio.updateRadioAcoustics(
+        state.activeView === 'radio',
+        strength,
+        delta,
+        state.squelch,
+        station ? station.type : 'none'
+      );
+
+      const transcriptBox = $('#radio-transcript-box');
+      const stationIdEl = $('#radio-station-id');
+      const modTag = $('#radio-modulation-tag');
+      const logBtn = $('#btn-log-signal');
+
+      $('#radio-signal-quality').textContent = `CLARIDAD: ${clarityPct}%`;
+
+      if (station && strength > 0.35) {
+        modTag.textContent = strength > 0.85 ? 'PORTADORA FIJA' : 'MODULACIÓN DÉBIL';
+        modTag.className = strength > 0.85 ? 'text-[#33ff66] font-bold' : 'text-[#ffb020]';
+
+        stationIdEl.textContent = strength > 0.75
+          ? `PORTADORA: ${station.id}`
+          : 'PORTADORA: SEÑAL SINCRONIZANDO...';
+        stationIdEl.className = 'text-xs text-[#ffb020] font-bold';
+
+        transcriptBox.textContent = obfuscateText(station.transcript, strength);
+
+        // Activar voz sintetizada/filtrada al fijar la señal
+        if (strength >= 0.88 && state.lastSpokenFreq !== station.freq && state.activeView === 'radio') {
+          state.lastSpokenFreq = station.freq;
+          audio.speakRadioTransmission(station.transcript, station.pitch, station.rate, station.isEntity);
+        }
+
+        const alreadyLogged = state.loggedFreqs.includes(station.freq);
+        if (strength >= 0.85 && !alreadyLogged) {
+          logBtn.disabled = false;
+          logBtn.textContent = `[ REGISTRAR ${station.freq.toFixed(1)} MHz EN BITÁCORA ]`;
+        } else if (alreadyLogged) {
+          logBtn.disabled = true;
+          logBtn.textContent = `[ SEÑAL ${station.freq.toFixed(1)} MHz YA REGISTRADA ]`;
+        } else {
+          logBtn.disabled = true;
+          logBtn.textContent = '[ AJUSTA SINTONÍA PARA REGISTRAR ]';
+        }
+      } else {
+        state.lastSpokenFreq = null;
+        modTag.textContent = 'ESTÁTICA';
+        modTag.className = 'text-[#92b89c]';
+        stationIdEl.textContent = 'PORTADORA: NO IDENTIFICADA';
+        stationIdEl.className = 'text-xs text-[#8aa392]';
+        transcriptBox.textContent = '[ RUIDO DE FONDO — SIN PORTADORA DETECTADA EN ESTA FRECUENCIA ]';
+        logBtn.disabled = true;
+        logBtn.textContent = '[ REGISTRAR SEÑAL EN BITÁCORA ]';
+      }
+    }
+
+    function initRadioScaleTicks() {
+      const container = $('#radio-scale-ticks');
+      let html = '';
+      for (let f = 87; f <= 108; f++) {
+        const leftPct = ((f - 87) / 21) * 100;
+        const isMajor = f % 2 === 0 || f === 87;
+        html += `
+          <div style="left: ${leftPct}%" class="absolute bottom-0 flex flex-col items-center -translate-x-1/2 pointer-events-none">
+            ${isMajor ? `<span class="text-[10px] text-[#ffb020] mb-1">${f}</span>` : ''}
+            <div class="w-px ${isMajor ? 'h-4 bg-[#ffb020]' : 'h-2 bg-[#ffb020]/50'}"></div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    /**
+     * =========================================================================
+     * 7. REGISTRO DE SEÑALES Y AVANCE DE LAS 4 FASES NARRATIVAS
+     * =========================================================================
+     */
+    function logCurrentSignal() {
+      const { station, strength } = getSignalInfo(state.freq);
+      if (!station || strength < 0.85 || state.loggedFreqs.includes(station.freq)) return;
+
+      audio.playSwitchHeavy();
+      state.loggedFreqs.push(station.freq);
+      addLog(`SEÑAL REGISTRADA [${station.freq.toFixed(1)} MHz]: ${station.logSummary}`, station.type === 'dead' || station.type === 'mirror');
+      updateRadioUI();
+
+      // Lógica de transición de fases
+      if (station.freq === 88.4 && state.phase === 1) {
+        advanceToPhase2();
+      } else if (station.freq === 97.5 && state.phase === 3) {
+        triggerPhoneCallEvent();
+      } else if (station.freq === 107.9 && state.phase === 4) {
+        addLog('ALERTA CRÍTICA: Portadora 107.9 MHz acoplada al transmisor principal. Ejecuta protocolo en TORRE_CTRL.CMD.', true);
+        setHint('Abre el TERMINAL CRT -> pestaña TORRE_CTRL.CMD y revisa el disyuntor junto a la ventana.');
+      } else if (state.phase === 2) {
+        const has94 = state.loggedFreqs.includes(94.2);
+        const has103 = state.loggedFreqs.includes(103.8);
+        if (has94 && has103) {
+          setHint('Has captado las dos portadoras fragmentadas (94.2 y 103.8 MHz). Crúzalas en TERMINAL CRT -> ESPECTRO.EXE.');
+        } else {
+          setHint('Continúa explorando el dial entre 91.0 MHz y 105.0 MHz para hallar las transmisiones ocultas.');
+        }
+      }
+    }
+
+    function advanceToPhase2() {
+      state.phase = 2;
+      state.clockMinutes = 17;
+      state.clockFrozen = true;
+      updateClockVisuals();
+
+      // Silencio intencional + fallo eléctrico sutil
+      audio.triggerIntentionalSilence(2200);
+      setTimeout(() => {
+        triggerScreenGlitch();
+        $('#hud-phase-label').textContent = 'FASE II — INTERFERENCIA ANÓMALA';
+        $('#hud-phase-label').className = 'text-[#ffb020] font-bold';
+        $('#status-led').className = 'w-2.5 h-2.5 rounded-full bg-[#ffb020] shadow-[0_0_8px_#ffb020]';
+
+        addLog('ANOMALÍA HORARIA: El reloj maestro de cabina se ha detenido a las 02:17.', true);
+        addLog('ALERTA DE ESPECTRO: Detectadas múltiples portadoras no autorizadas entre 91.5 y 104.0 MHz.', true);
+        setHint('Explora el dial de radio (91.7, 94.2 y 103.8 MHz) y consulta los informes en el Archivador.');
+      }, 900);
+    }
+
+    function advanceToPhase3() {
+      if (state.phase >= 3) return;
+      state.phase = 3;
+      state.harmonicDecoded = true;
+      state.clockReversedOnce = true;
+
+      triggerScreenGlitch();
+      $('#room-fluorescent').classList.add('flicker-active');
+      $('#hud-phase-label').textContent = 'FASE III — FRECUENCIA MUERTA';
+      $('#hud-phase-label').className = 'text-[#ff2e2e] font-bold';
+      $('#status-led').className = 'w-2.5 h-2.5 rounded-full bg-[#ff2e2e] shadow-[0_0_8px_#ff2e2e]';
+
+      // Cambiar patrón de la baliza de la torre
+      $('#beacon-status-label').textContent = 'BALIZA: DOBLE LATIDO IRREGULAR';
+      $('#beacon-status-label').className = 'text-xs text-[#ff2e2e] font-bold';
+
+      addLog('DECODIFICACIÓN COMPLETADA: Coordenada maestra revelada en 107.9 MHz.', true);
+      addLog('SISTEMA DE ARCHIVOS: Se ha creado espontáneamente el fichero 1982_NO_BORRAR.DAT en ARCHIVOS.SYS.', true);
+      addLog('ANOMALÍA DE BANDA: Nueva portadora activa detectada en 97.5 MHz.', true);
+
+      setHint('Sintoniza 97.5 MHz en la radio o revisa 1982_NO_BORRAR.DAT en el Terminal CRT.');
+    }
+
+    function triggerPhoneCallEvent() {
+      if (state.phoneRinging || state.phoneAnswered) return;
+      state.phoneRinging = true;
+      audio.triggerIntentionalSilence(1200);
+      setTimeout(() => {
+        audio.startPhoneRinging();
+        $('#room-phone-ring-aura').setAttribute('opacity', '0.9');
+        $('#phone-line-status').textContent = 'LLAMADA ENTRANTE (IMPOSIBLE)';
+        addLog('ANOMALÍA FÍSICA: El teléfono fijo está sonando a pesar de tener el cable cortado.', true);
+        setHint('Contesta el teléfono fijo en el extremo derecho del escritorio.');
+      }, 1250);
+    }
+
+    function unlockDrawerAndTape04() {
+      if (state.drawerUnlocked) return;
+      state.drawerUnlocked = true;
+      $('#drawer-alert-tag').setAttribute('fill', '#33ff66');
+      $('#drawer-status-text').textContent = 'CAJÓN INFERIOR: ABIERTO (NUEVO EXPEDIENTE Y CINTA)';
+      $('#drawer-status-text').className = 'text-xs text-[#33ff66] font-bold';
+      addLog('HALLAZGO EN CAJÓN: Recuperado "Expediente Rojo: Proyecto Vigía" y "CINTA #04: SIN ETIQUETA".', true);
+      setHint('Lee el Expediente Rojo en el Archivador y reproduce la CINTA #04 en la Grabadora TEAC-82.');
+    }
+
+    function advanceToPhase4() {
+      if (state.phase >= 4) return;
+      state.phase = 4;
+      triggerScreenGlitch();
+      $('#hud-phase-label').textContent = 'FASE IV — ÚLTIMA TRANSMISIÓN';
+      addLog('FASE CRÍTICA: Sintoniza 107.9 MHz (La Frecuencia Muerta) y abre TORRE_CTRL.CMD en el CRT.', true);
+      setHint('Sintoniza 107.9 MHz en el Marconi-99 para establecer contacto antes de decidir en TORRE_CTRL.CMD.');
+    }
+
+    /**
+     * =========================================================================
+     * 8. RENDERIZADO DE TERMINAL CRT (REL-OS v2.4)
+     * =========================================================================
+     */
+    function updateMiniCRT() {
+      $('#room-crt-line2').textContent = `> SEÑALES REG: ${state.loggedFreqs.length}`;
+      $('#room-crt-line3').textContent = state.phase >= 3 ? '> ALERTA: 107.9 MHz' : '> ESPECTRO: ACTIVO';
+      $('#room-crt-line3').setAttribute('fill', state.phase >= 3 ? '#ff2e2e' : '#ffb020');
+    }
+
+    function renderCRTTab() {
+      const container = $('#crt-tab-content');
+      $$('.crt-tab-btn').forEach(btn => {
+        const isCurrent = btn.dataset.crtTab === state.crtTab;
+        if (btn.dataset.crtTab === 'tower') {
+          btn.className = isCurrent
+            ? 'crt-tab-btn px-3 py-1 rounded text-xs sm:text-sm bg-[#ff2e2e] text-[#060807] font-bold cursor-pointer'
+            : 'crt-tab-btn px-3 py-1 rounded text-xs sm:text-sm border border-[#ff2e2e]/60 text-[#ff2e2e] hover:bg-[#ff2e2e]/20 cursor-pointer';
+        } else {
+          btn.className = isCurrent
+            ? 'crt-tab-btn px-3 py-1 rounded text-xs sm:text-sm bg-[#33ff66] text-[#060807] font-bold cursor-pointer'
+            : 'crt-tab-btn px-3 py-1 rounded text-xs sm:text-sm border border-[#198033] text-[#33ff66] hover:bg-[#198033]/30 cursor-pointer';
+        }
+      });
+
+      if (state.crtTab === 'log') {
+        container.innerHTML = `
+          <div class="text-[#198033] mb-2">-- REGISTRO CRONOLÓGICO DEL TURNO (SIERRA-04) --</div>
+          <div class="space-y-2">
+            ${state.logs.map(entry => {
+              if (typeof entry === 'string') {
+                return `<div class="text-[#33ff66]">${entry}</div>`;
+              }
+              return `<div class="${entry.alert ? 'text-[#ffb020]' : 'text-[#33ff66]'}">[${entry.time}] ${entry.text}</div>`;
+            }).join('')}
+          </div>
+        `;
+      } else if (state.crtTab === 'spectrum') {
+        const loggedObjs = FREQUENCIES_DB.filter(f => state.loggedFreqs.includes(f.freq));
+        container.innerHTML = `
+          <div class="text-[#ffb020] font-bold">MÓDULO DE CORRELACIÓN ARMÓNICA // ESPECTRO.EXE</div>
+          <p class="text-[#92b89c]">Selecciona dos frecuencias fragmentadas registradas para cruzar su diferencial armónico (Δf = 9.6 MHz):</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 my-2">
+            ${loggedObjs.length === 0
+              ? '<div class="col-span-2 p-3 border border-[#198033]/50 rounded text-[#8aa392]">Aún no has registrado ninguna frecuencia desde el transceptor Marconi-99.</div>'
+              : loggedObjs.map(f => {
+                  const checked = state.selectedSpectrumFreqs.includes(f.freq);
+                  return `
+                    <button data-spec-freq="${f.freq}" class="spec-select-btn p-2.5 rounded border text-left transition cursor-pointer ${checked ? 'border-[#ffb020] bg-[#ffb020]/20 text-[#ffb020]' : 'border-[#198033] bg-[#08120b] text-[#33ff66]'}">
+                      <div class="font-bold">${checked ? '[X]' : '[ ]'} ${f.freq.toFixed(1)} MHz — ${f.id}</div>
+                      <div class="text-[11px] opacity-80 truncate">${f.logSummary}</div>
+                    </button>
+                  `;
+                }).join('')
+            }
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#198033]/50">
+            <div class="text-xs text-[#92b89c]">
+              SELECCIÓN: <span class="text-[#ffb020]">${state.selectedSpectrumFreqs.map(x => x.toFixed(1) + ' MHz').join(' + ') || 'NINGUNA'}</span>
+            </div>
+            <button id="btn-correlate-freqs" class="hw-btn px-4 py-2 rounded text-xs sm:text-sm font-bold text-[#ffb020] cursor-pointer">
+              [ COMBINAR PORTADORAS ]
+            </button>
+          </div>
+          <div id="spectrum-result-msg" class="mt-2 text-xs font-bold">
+            ${state.harmonicDecoded
+              ? '<span class="text-[#33ff66]">CORRELACIÓN EXITOSA: CLAVE [OMEGA-7 / NODO-04] -> PORTADORA MAESTRA DESBLOQUEADA EN 107.9 MHz.</span>'
+              : ''}
+          </div>
+        `;
+
+        $$('.spec-select-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            audio.playClick(780, 0.03, 0.14);
+            const val = parseFloat(btn.dataset.specFreq);
+            if (state.selectedSpectrumFreqs.includes(val)) {
+              state.selectedSpectrumFreqs = state.selectedSpectrumFreqs.filter(x => x !== val);
+            } else {
+              if (state.selectedSpectrumFreqs.length >= 2) state.selectedSpectrumFreqs.shift();
+              state.selectedSpectrumFreqs.push(val);
+            }
+            renderCRTTab();
+          });
+        });
+
+        $('#btn-correlate-freqs').addEventListener('click', () => {
+          audio.playSwitchHeavy();
+          const sel = [...state.selectedSpectrumFreqs].sort((a, b) => a - b);
+          const resBox = $('#spectrum-result-msg');
+          if (sel.length === 2 && sel[0] === 94.2 && sel[1] === 103.8) {
+            advanceToPhase3();
+            renderCRTTab();
+          } else {
+            resBox.innerHTML = '<span class="text-[#ff2e2e]">ERROR DE CORRELACIÓN: Las frecuencias seleccionadas no forman un par armónico válido (Δf ≠ 9.6 MHz).</span>';
+          }
+        });
+      } else if (state.crtTab === 'files') {
+        container.innerHTML = `
+          <div class="text-[#198033] mb-2">-- DIRECTORIO RAÍZ C:\\SIERRA04\\SYS --</div>
+          <div class="p-3 rounded border border-[#198033]/50 bg-[#08120b] space-y-2">
+            <div><span class="text-[#ffb020]">CONFIG.SYS</span> — Parámetros UART de enlace con Marconi-99 [OK]</div>
+            <div><span class="text-[#ffb020]">BALIZA88.BIN</span> — Telemetría automática cada 15 minutos [DETENIDA A LAS 02:17]</div>
+            <div><span class="text-[#ffb020]">RED_VALLE.DAT</span> — Enlace de difusión regional [DESCONECTADO POR SEGURIDAD]</div>
+          </div>
+          ${state.phase >= 3 ? `
+            <div class="mt-3 p-3.5 rounded border border-[#ff2e2e] bg-[#1f0909] text-[#ff9e9e] space-y-2">
+              <div class="font-bold text-[#ff2e2e]">¡ARCHIVO ANÓMALO DETECTADO: 1982_NO_BORRAR.DAT!</div>
+              <p class="leading-relaxed">
+                "No hubo incendio en Sierra-01. Sellaron la cabina conmigo dentro para alimentar la onda estacionaria de 107.9 MHz. Si la portadora cae sin contención, la entidad saltará a los repetidores del valle. Si lees esto en 1999, el ciclo de 17 años ha vuelto a abrirse. — E. VEGA"
+              </p>
+            </div>
+          ` : '<div class="text-xs text-[#8aa392] mt-2">No se detectan ficheros ocultos en este sector.</div>'}
+        `;
+      } else if (state.crtTab === 'tower') {
+        const readyForEnding = state.phase >= 4 && state.loggedFreqs.includes(107.9);
+        container.innerHTML = `
+          <div class="text-[#ff2e2e] font-bold">TERMINAL DE CONTROL DE ANTENA Y TRANSMISOR // TORRE_CTRL.CMD</div>
+          ${!readyForEnding ? `
+            <div class="p-4 rounded border border-[#ffb020]/50 bg-[#171206] text-[#ffb020] space-y-2">
+              <div class="font-bold">ACCESO BLOQUEADO — PROTOCOLO INCOMPLETO</div>
+              <p>Para habilitar las órdenes directas sobre la antena emisora debes completar la investigación:</p>
+              <ul class="list-disc ml-5 text-xs space-y-1 text-[#c4ded0]">
+                <li>Decodificar las portadoras divididas en ESPECTRO.EXE (${state.harmonicDecoded ? 'COMPLETADO' : 'PENDIENTE'})</li>
+                <li>Atender la llamada y escuchar la CINTA #04 en la grabadora (${state.tape04Listened ? 'COMPLETADO' : 'PENDIENTE'})</li>
+                <li>Sintonizar y registrar 107.9 MHz en la radio (${state.loggedFreqs.includes(107.9) ? 'COMPLETADO' : 'PENDIENTE'})</li>
+              </ul>
+            </div>
+          ` : `
+            <div class="p-3 rounded border border-[#ff2e2e] bg-[#140808] text-xs sm:text-sm space-y-3">
+              <div class="text-[#ffb020]">
+                ESTADO DEL DISYUNTOR DE SALA (JUNTO A VENTANA):
+                <strong class="${state.breakerMode === 'overload' ? 'text-[#ff2e2e]' : 'text-[#33ff66]'}">
+                  ${state.breakerMode === 'overload' ? 'SOBRECARGA DE CONDENSADORES ARMADA' : 'OPERACIÓN NORMAL'}
+                </strong>
+              </div>
+              <p class="text-[#c4ded0]">Selecciona el comando definitivo para la portadora 107.9 MHz:</p>
+
+              <div class="space-y-2.5 pt-1">
+                <button id="btn-end-vigia" class="w-full text-left p-3 rounded border border-[#33ff66] bg-[#08170d] hover:bg-[#112e1a] cursor-pointer">
+                  <div class="font-bold text-[#33ff66]">[1] EJECUTAR PROTOCOLO VIGÍA (REFORZAR CONTENCIÓN)</div>
+                  <div class="text-xs text-[#92b89c]">Sella la cabina y bloquea la entidad otros 17 años. Requiere Disyuntor en posición NORMAL.</div>
+                </button>
+
+                <button id="btn-end-ceniza" class="w-full text-left p-3 rounded border border-[#ffb020] bg-[#1a1306] hover:bg-[#2b200a] cursor-pointer">
+                  <div class="font-bold text-[#ffb020]">[2] INICIAR PURGA TÉRMICA (DESTRUIR TRANSMISOR)</div>
+                  <div class="text-xs text-[#92b89c]">Detona los condensadores para destruir la onda para siempre. Requiere activar SOBRECARGA junto a la ventana.</div>
+                </button>
+
+                <button id="btn-end-libre" class="w-full text-left p-3 rounded border border-[#ff2e2e] bg-[#1c0808] hover:bg-[#300d0d] cursor-pointer">
+                  <div class="font-bold text-[#ff2e2e]">[3] ABRIR ENLACE REGIONAL (EMISIÓN ABIERTA)</div>
+                  <div class="text-xs text-[#92b89c]">Transmite 107.9 MHz a todos los repetidores del valle sin restricciones.</div>
+                </button>
+              </div>
+              <div id="tower-cmd-feedback" class="text-xs text-[#ff2e2e] font-bold"></div>
+            </div>
+          `}
+        `;
+
+        if (readyForEnding) {
+          $('#btn-end-vigia').addEventListener('click', () => {
+            if (state.breakerMode !== 'normal') {
+              audio.playClick(220, 0.1, 0.25);
+              $('#tower-cmd-feedback').textContent = 'ERROR: Devuelve primero el Disyuntor junto a la ventana a POSICIÓN I (NORMAL).';
+              return;
+            }
+            triggerEnding('vigia');
+          });
+
+          $('#btn-end-ceniza').addEventListener('click', () => {
+            if (state.breakerMode !== 'overload') {
+              audio.playClick(220, 0.1, 0.25);
+              $('#tower-cmd-feedback').textContent = 'ERROR: Debes activar primero la SOBRECARGA DE CONDENSADORES en el Disyuntor junto a la ventana.';
+              return;
+            }
+            triggerEnding('ceniza');
+          });
+
+          $('#btn-end-libre').addEventListener('click', () => {
+            triggerEnding('libre');
+          });
+        }
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 9. GRABADORA DE CASETE TEAC-82, DOCUMENTOS, TELÉFONO, RELOJ Y VENTANA
+     * =========================================================================
+     */
+    let tapeTickInterval = null;
+
+    function renderTapeUI() {
+      const availableTapes = CASSETTES_DB.filter(t => t.minPhase <= state.phase && (t.id !== 'tape_04' || state.drawerUnlocked));
+      const selector = $('#tape-selector-list');
+      selector.innerHTML = availableTapes.map(t => `
+        <button data-tape-id="${t.id}" class="tape-pick-btn px-2.5 py-1 rounded text-xs cursor-pointer ${state.currentTapeId === t.id ? 'bg-[#33ff66] text-[#060807] font-bold' : 'bg-[#232826] text-[#c4ded0] border border-[#444b48]'}">
+          ${t.id === 'tape_01' ? 'CINTA #01' : 'CINTA #04 [!]'}
+        </button>
+      `).join('');
+
+      $$('.tape-pick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          stopTape();
+          audio.playSwitchHeavy();
+          state.currentTapeId = btn.dataset.tapeId;
+          state.tapeCounter = 0;
+          renderTapeUI();
+        });
+      });
+
+      const currentTape = CASSETTES_DB.find(t => t.id === state.currentTapeId) || CASSETTES_DB[0];
+      $('#cassette-label-title').textContent = currentTape.label;
+      $('#cassette-label-year').textContent = currentTape.year;
+      $('#tape-counter-display').textContent = String(state.tapeCounter).padStart(3, '0');
+      $('#room-tape-counter').textContent = String(state.tapeCounter).padStart(3, '0');
+
+      const leftReel = $('#reel-left');
+      const rightReel = $('#reel-right');
+      leftReel.classList.remove('reel-spinning', 'reel-rewinding');
+      rightReel.classList.remove('reel-spinning', 'reel-rewinding');
+
+      if (state.tapeStatus === 'playing') {
+        $('#tape-status-badge').textContent = 'REPRODUCIENDO';
+        $('#tape-status-badge').className = 'px-2 py-0.5 rounded bg-[#0c2413] border border-[#33ff66] text-xs text-[#33ff66] font-bold';
+        $('#room-tape-led').setAttribute('fill', '#33ff66');
+        leftReel.classList.add('reel-spinning');
+        rightReel.classList.add('reel-spinning');
+        $('#tape-transcript-box').textContent = currentTape.transcript;
+      } else if (state.tapeStatus === 'rewinding') {
+        $('#tape-status-badge').textContent = 'REBOBINANDO';
+        leftReel.classList.add('reel-rewinding');
+        rightReel.classList.add('reel-rewinding');
+      } else {
+        $('#tape-status-badge').textContent = 'DETENIDO';
+        $('#tape-status-badge').className = 'px-2 py-0.5 rounded bg-[#111513] border border-[#3a403d] text-xs text-[#ffb020]';
+        $('#room-tape-led').setAttribute('fill', '#198033');
+        if (state.tapeCounter === 0) {
+          $('#tape-transcript-box').textContent = '[ PULSE PLAY PARA REPRODUCIR LA CINTA MAGNÉTICA ]';
+        }
+      }
+    }
+
+    function playTape() {
+      if (state.tapeStatus === 'playing') return;
+      audio.playSwitchHeavy();
+      state.tapeStatus = 'playing';
+      const currentTape = CASSETTES_DB.find(t => t.id === state.currentTapeId) || CASSETTES_DB[0];
+
+      audio.speakRadioTransmission(currentTape.transcript, currentTape.id === 'tape_04' ? 0.84 : 0.95, 0.94, false);
+
+      if (currentTape.id === 'tape_04' && !state.tape04Listened) {
+        state.tape04Listened = true;
+        addLog('GRABACIÓN #04 REPRODUCIDA: La cinta contiene mi propia voz advirtiendo sobre el bucle de 17 años.', true);
+        advanceToPhase4();
+      }
+
+      renderTapeUI();
+      clearInterval(tapeTickInterval);
+      tapeTickInterval = setInterval(() => {
+        if (state.tapeStatus !== 'playing') return;
+        state.tapeCounter++;
+        $('#tape-counter-display').textContent = String(state.tapeCounter).padStart(3, '0');
+        $('#room-tape-counter').textContent = String(state.tapeCounter).padStart(3, '0');
+        if (state.tapeCounter >= 120) {
+          stopTape();
+        }
+      }, 220);
+    }
+
+    function stopTape() {
+      audio.playSwitchHeavy();
+      audio.stopSpeech();
+      state.tapeStatus = 'stopped';
+      clearInterval(tapeTickInterval);
+      renderTapeUI();
+    }
+
+    function rewindTape() {
+      audio.playSwitchHeavy();
+      audio.stopSpeech();
+      state.tapeStatus = 'rewinding';
+      renderTapeUI();
+      clearInterval(tapeTickInterval);
+      tapeTickInterval = setInterval(() => {
+        state.tapeCounter = Math.max(0, state.tapeCounter - 6);
+        $('#tape-counter-display').textContent = String(state.tapeCounter).padStart(3, '0');
+        $('#room-tape-counter').textContent = String(state.tapeCounter).padStart(3, '0');
+        if (state.tapeCounter === 0) {
+          state.tapeStatus = 'stopped';
+          clearInterval(tapeTickInterval);
+          renderTapeUI();
+        }
+      }, 70);
+    }
+
+    function renderFilesUI() {
+      // Si el jugador abre el archivador tras contestar la llamada en Fase 3, desbloquea el cajón automáticamente
+      if (state.phase >= 3 && state.phoneAnswered && !state.drawerUnlocked) {
+        unlockDrawerAndTape04();
+      }
+
+      const docs = DOCUMENTS_DB.filter(d => d.minPhase <= state.phase && (d.id !== 'red_dossier' || state.drawerUnlocked));
+      if (!docs.find(d => d.id === state.selectedDocId)) {
+        state.selectedDocId = docs[0].id;
+      }
+
+      const listEl = $('#doc-folder-list');
+      listEl.innerHTML = docs.map(doc => {
+        const active = doc.id === state.selectedDocId;
+        return `
+          <button data-doc-id="${doc.id}" class="doc-folder-btn p-3 rounded text-left border transition cursor-pointer ${active ? 'bg-[#d8d2c1] text-[#141412] border-[#ffb020] font-bold' : 'bg-[#1c201e] text-[#c4ded0] border-[#3d4541] hover:border-[#ffb020]/60'}">
+            <div class="text-[10px] opacity-75">${doc.stamp}</div>
+            <div class="text-xs sm:text-sm mt-0.5">${doc.title}</div>
+          </button>
+        `;
+      }).join('');
+
+      $$('.doc-folder-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          audio.playClick(520, 0.03, 0.14);
+          state.selectedDocId = btn.dataset.docId;
+          renderFilesUI();
+        });
+      });
+
+      const currentDoc = docs.find(d => d.id === state.selectedDocId) || docs[0];
+      $('#doc-paper-viewer').innerHTML = currentDoc.content;
+    }
+
+    function renderPhoneUI() {
+      const box = $('#phone-call-transcript');
+      if (state.phoneRinging) {
+        box.textContent = '[ TIMBRE ESTRIDENTE — LÍNEA DESCONECTADA VIBRANDO ]';
+        box.className = 'w-full min-h-[72px] p-3 rounded bg-[#1f0909] border border-[#ff2e2e] text-xs sm:text-sm text-[#ff2e2e] font-bold flex items-center justify-center animate-pulse';
+      } else if (state.phoneAnswered) {
+        box.textContent = '«No busques en las paredes, operador. Abre el cajón inferior del archivador metálico. Allí dejaste la cinta antes de olvidar.»';
+        box.className = 'w-full min-h-[72px] p-3 rounded bg-[#060807] border border-[#ffb020] text-xs sm:text-sm text-[#ffb020] flex items-center justify-center';
+      } else {
+        box.textContent = '[ AURICULAR COLGADO — SIN TONO DE LÍNEA ]';
+      }
+    }
+
+    function pickupPhone() {
+      audio.playSwitchHeavy();
+      const box = $('#phone-call-transcript');
+      if (state.phoneRinging) {
+        state.phoneRinging = false;
+        state.phoneAnswered = true;
+        audio.stopPhoneRinging();
+        $('#room-phone-ring-aura').setAttribute('opacity', '0');
+
+        const msg = 'No busques en las paredes, operador. Abre el cajón inferior del archivador metálico. Allí dejaste la cinta antes de olvidar.';
+        box.textContent = `«${msg}»`;
+        box.className = 'w-full min-h-[72px] p-3 rounded bg-[#060807] border border-[#ffb020] text-xs sm:text-sm text-[#ffb020] flex items-center justify-center';
+
+        audio.speakRadioTransmission(msg, 0.80, 0.90, true);
+        addLog('LLAMADA INTERCEPTADA: Una voz idéntica a la mía indicó revisar el cajón inferior del archivador.', true);
+        unlockDrawerAndTape04();
+      } else if (state.phoneAnswered) {
+        box.textContent = '[ SOLO SE ESCUCHA EL ECO DE TU PROPIA RESPIRACIÓN AL OTRO LADO ]';
+      } else {
+        box.textContent = '[ SILENCIO MUERTO — EL CABLE ESTÁ CORTADO ]';
+      }
+    }
+
+    function updateClockVisuals() {
+      const mins = state.clockMinutes;
+      const timeStr = `02:${String(mins).padStart(2, '0')}`;
+      $('#hud-clock').textContent = timeStr;
+      $('#closeup-clock-digital').textContent = `${timeStr}:${state.clockFrozen ? '00' : '14'}`;
+
+      // Rotación agujas SVG del reloj de pared (centro 720, 165)
+      const minAngle = (mins / 60) * 360 * (Math.PI / 180);
+      const minX = 720 + Math.sin(minAngle) * 38;
+      const minY = 165 - Math.cos(minAngle) * 38;
+      $('#clock-hand-min').setAttribute('x2', minX);
+      $('#clock-hand-min').setAttribute('y2', minY);
+    }
+
+    function renderClockUI() {
+      updateClockVisuals();
+      const obs = $('#clock-observation-text');
+      if (state.phase === 1) {
+        obs.textContent = 'El reloj electromecánico marca la hora con normalidad. El turno acaba de comenzar.';
+      } else if (state.phase === 2) {
+        obs.textContent = 'Las agujas quedaron clavadas a las 02:17 exactas. No se oye el zumbido del motor interno.';
+      } else {
+        obs.textContent = 'El segundero vibra hacia atrás cada pocos segundos con un chasquido metálico seco. El tiempo en la cabina no avanza.';
+      }
+    }
+
+    function renderWindowUI() {
+      const obs = $('#tower-observation-text');
+      const stateLbl = $('#breaker-state-label');
+      if (state.phase === 1) {
+        obs.textContent = 'A través del cristal blindado empapado por la lluvia, la torre de 65 metros se recorta contra las nubes. Su baliza roja parpadea cada dos segundos.';
+      } else if (state.phase === 2) {
+        obs.textContent = 'La niebla rodea la base de la torre. La baliza roja parece brillar con mayor intensidad cada vez que sintonizas una frecuencia anómala.';
+      } else {
+        obs.textContent = 'Un halo rojizo envuelve la cúspide de la antena. El zumbido de alta tensión vibra directamente en el marco metálico de la ventana.';
+      }
+
+      if (state.breakerMode === 'overload') {
+        stateLbl.textContent = 'SOBRECARGA ARMADA (PELIGRO TÉRMICO)';
+        stateLbl.className = 'text-sm font-bold text-[#ff2e2e] mt-0.5';
+        $('#room-breaker-lever').setAttribute('y', '238');
+        $('#room-breaker-led').setAttribute('fill', '#ff2e2e');
+      } else {
+        stateLbl.textContent = 'NORMAL (ESTABLE)';
+        stateLbl.className = 'text-sm font-bold text-[#33ff66] mt-0.5';
+        $('#room-breaker-lever').setAttribute('y', '208');
+        $('#room-breaker-led').setAttribute('fill', '#33ff66');
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 10. DESENLACES Y PERSISTENCIA EN LOCALSTORAGE
+     * =========================================================================
+     */
+    function triggerEnding(endingKey) {
+      audio.stopSpeech();
+      audio.stopPhoneRinging();
+      audio.playDegaussThump();
+
+      if (!state.unlockedEndings.includes(endingKey)) {
+        state.unlockedEndings.push(endingKey);
+        localStorage.setItem('dead_frequency_endings', JSON.stringify(state.unlockedEndings));
+        updateEndingsBadge();
+      }
+
+      const data = ENDINGS_DB[endingKey];
+      $('#ending-code').textContent = data.code;
+      $('#ending-title').textContent = data.title;
+      $('#ending-narrative').textContent = data.narrative;
+      $('#ending-epilogue').textContent = data.epilogue;
+
+      $('#screen-game').classList.add('hidden');
+      $('#screen-ending').classList.remove('hidden');
+    }
+
+    function renderEndingsArchive() {
+      const list = $('#endings-archive-list');
+      const keys = ['vigia', 'ceniza', 'libre'];
+      list.innerHTML = keys.map(k => {
+        const unlocked = state.unlockedEndings.includes(k);
+        const info = ENDINGS_DB[k];
+        return `
+          <div class="p-3 rounded border ${unlocked ? 'border-[#33ff66] bg-[#0b170f]' : 'border-[#343a37] bg-[#111413] opacity-60'}">
+            <div class="font-bold ${unlocked ? 'text-[#33ff66]' : 'text-[#8aa392]'}">
+              ${unlocked ? info.title : '[ DESENLACE NO DESCUBIERTO ]'}
+            </div>
+            <div class="text-xs text-[#92b89c] mt-1">
+              ${unlocked ? info.epilogue : 'Completa el turno nocturno en Sierra-04 para registrar este desenlace.'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /**
+     * =========================================================================
+     * 11. ANIMACIONES CANVAS (LLUVIA EXTERIOR + OSCILOSCOPIO EN TIEMPO REAL)
+     * =========================================================================
+     */
+    function startVisualLoops() {
+      const weatherCanvas = $('#canvas-weather');
+      const wCtx = weatherCanvas.getContext('2d');
+      const oscCanvas = $('#canvas-oscilloscope');
+      const oCtx = oscCanvas.getContext('2d');
+
+      const raindrops = Array.from({ length: 85 }, () => ({
+        x: Math.random(),
+        y: Math.random(),
+        speed: 0.015 + Math.random() * 0.02,
+        len: 12 + Math.random() * 18
+      }));
+
+      let phaseTime = 0;
+
+      function resizeCanvases() {
+        weatherCanvas.width = window.innerWidth;
+        weatherCanvas.height = window.innerHeight;
+        if (oscCanvas.parentElement) {
+          oscCanvas.width = oscCanvas.clientWidth || 320;
+          oscCanvas.height = oscCanvas.clientHeight || 96;
+        }
+      }
+      window.addEventListener('resize', resizeCanvases);
+      resizeCanvases();
+
+      function frame() {
+        phaseTime += 0.05;
+
+        // 1. Lluvia exterior y parpadeo de baliza de torre
+        wCtx.clearRect(0, 0, weatherCanvas.width, weatherCanvas.height);
+        wCtx.strokeStyle = 'rgba(130, 175, 160, 0.14)';
+        wCtx.lineWidth = 1;
+        wCtx.beginPath();
+        for (const d of raindrops) {
+          d.y += d.speed;
+          d.x -= d.speed * 0.12;
+          if (d.y > 1) { d.y = 0; d.x = Math.random(); }
+          if (d.x < 0) d.x = 1;
+          const px = d.x * weatherCanvas.width;
+          const py = d.y * weatherCanvas.height;
+          wCtx.moveTo(px, py);
+          wCtx.lineTo(px - 2, py + d.len);
+        }
+        wCtx.stroke();
+
+        // Actualizar baliza roja de la torre en la habitación
+        const beaconGlow = $('#tower-beacon-glow');
+        const beaconCore = $('#tower-beacon-core');
+        if (beaconGlow && beaconCore) {
+          let pulse = 0.2;
+          if (state.phase <= 2) {
+            pulse = 0.25 + 0.75 * Math.max(0, Math.sin(phaseTime * 1.4));
+          } else if (state.phase === 3) {
+            // Doble latido errático
+            pulse = (Math.sin(phaseTime * 3.8) > 0.55 || Math.sin(phaseTime * 3.8 - 1.1) > 0.75) ? 1 : 0.15;
+          } else {
+            pulse = 0.85 + 0.15 * Math.sin(phaseTime * 8);
+          }
+          beaconGlow.setAttribute('opacity', (pulse * 0.45).toFixed(2));
+          beaconCore.setAttribute('opacity', Math.max(0.3, pulse).toFixed(2));
+        }
+
+        // 2. Osciloscopio en tiempo real (cuando la vista de radio está abierta)
+        if (state.activeView === 'radio') {
+          if (oscCanvas.width !== oscCanvas.clientWidth && oscCanvas.clientWidth > 0) {
+            oscCanvas.width = oscCanvas.clientWidth;
+            oscCanvas.height = oscCanvas.clientHeight;
+          }
+          const W = oscCanvas.width;
+          const H = oscCanvas.height;
+          oCtx.fillStyle = '#050c07';
+          oCtx.fillRect(0, 0, W, H);
+
+          // Rejilla verde tenue
+          oCtx.strokeStyle = 'rgba(25, 128, 51, 0.25)';
+          oCtx.lineWidth = 1;
+          oCtx.beginPath();
+          oCtx.moveTo(0, H / 2);
+          oCtx.lineTo(W, H / 2);
+          for (let gx = 0; gx < W; gx += 32) {
+            oCtx.moveTo(gx, 0);
+            oCtx.lineTo(gx, H);
+          }
+          oCtx.stroke();
+
+          // Trazado de señal / estática
+          const { station, strength } = getSignalInfo(state.freq);
+          oCtx.strokeStyle = station && station.type === 'dead' && strength > 0.7 ? '#ff2e2e' : '#33ff66';
+          oCtx.lineWidth = 1.8;
+          oCtx.beginPath();
+
+          for (let x = 0; x < W; x += 2) {
+            const normX = x / W;
+            const staticNoise = (Math.random() - 0.5) * (1 - strength * 0.85) * (H * 0.65);
+            let carrierWave = 0;
+            if (station && strength > 0.3) {
+              const modEnv = Math.sin(normX * Math.PI * 3 + phaseTime * 1.6) * Math.cos(normX * 14 - phaseTime * 2.2);
+              const freqMult = station.type === 'dead' ? 9 : 22;
+              carrierWave = Math.sin(normX * freqMult + phaseTime * 4) * modEnv * strength * (H * 0.36);
+            }
+            const y = H / 2 + staticNoise + carrierWave;
+            if (x === 0) oCtx.moveTo(x, y);
+            else oCtx.lineTo(x, y);
+          }
+          oCtx.stroke();
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    /**
+     * =========================================================================
+     * 12. INICIALIZACIÓN DE EVENTOS E INTERACCIONES TÁCTILES/RATÓN/TECLADO
+     * =========================================================================
+     */
+    window.onload = function () {
+      updateEndingsBadge();
+      initRadioScaleTicks();
+      startVisualLoops();
+
+      // Paralaje sutil en la cabina al mover el ratón
+      const roomScene = $('#room-scene');
+      window.addEventListener('mousemove', (e) => {
+        if (state.activeView !== 'room') return;
+        const dx = (e.clientX / window.innerWidth - 0.5) * -14;
+        const dy = (e.clientY / window.innerHeight - 0.5) * -8;
+        roomScene.style.transform = `scale(1.03) translate(${dx}px, ${dy}px)`;
+      });
+
+      // Botón iniciar turno
+      $('#btn-start-game').addEventListener('click', () => {
+        audio.init();
+        audio.playDegaussThump();
+        $('#screen-boot').classList.add('hidden');
+        $('#screen-game').classList.remove('hidden');
+        updateRadioUI();
+        updateClockVisuals();
+
+        // Reloj de Fase 1 avanza progresivamente hasta las 02:16 esperando comprobación de 88.4 MHz
+        state.clockInterval = setInterval(() => {
+          if (!state.clockFrozen && state.phase === 1) {
+            audio.playClockTick(state.clockMinutes % 2 === 0);
+            if (state.clockMinutes < 16) {
+              state.clockMinutes++;
+              updateClockVisuals();
+            }
+          } else if (state.phase >= 3) {
+            // Espasmo ocasional del segundero en Fase 3+
+            if (Math.random() < 0.25) audio.playClockTick(false);
+          }
+        }, 4200);
+      });
+
+      // Hotspots SVG en la habitación
+      $$('.room-hotspot').forEach(hs => {
+        hs.addEventListener('click', () => {
+          switchView(hs.dataset.target);
+        });
+      });
+
+      // Barra inferior de consola
+      $$('.nav-console-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchView(btn.dataset.nav);
+        });
+      });
+
+      // Volver a vista general de cabina
+      $('#btn-back-room').addEventListener('click', () => switchView('room'));
+
+      // Teclado: ESC vuelve a cabina; Flechas / A-D sintonizan radio
+      window.addEventListener('keydown', (e) => {
+        if ($('#screen-game').classList.contains('hidden')) return;
+        if (e.key === 'Escape') {
+          if (!$('#modal-audio').classList.contains('hidden')) {
+            $('#modal-audio').classList.add('hidden');
+          } else if (state.activeView !== 'room') {
+            switchView('room');
+          }
+        }
+        if (state.activeView === 'radio') {
+          if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+            e.preventDefault();
+            setFrequency(state.freq - 0.1);
+          } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+            e.preventDefault();
+            setFrequency(state.freq + 0.1);
+          }
+        }
+      });
+
+      // Controles del sintonizador de radio
+      $('#btn-freq-down-fast').addEventListener('click', () => setFrequency(state.freq - 1.0));
+      $('#btn-freq-down').addEventListener('click', () => setFrequency(state.freq - 0.1));
+      $('#btn-freq-up').addEventListener('click', () => setFrequency(state.freq + 0.1));
+      $('#btn-freq-up-fast').addEventListener('click', () => setFrequency(state.freq + 1.0));
+
+      // Arrastrar/clic sobre la regla del dial
+      const scaleBar = $('#radio-scale-bar');
+      let draggingScale = false;
+      function scrubScale(clientX) {
+        const rect = scaleBar.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        setFrequency(87.0 + ratio * 21.0);
+      }
+      scaleBar.addEventListener('mousedown', (e) => { draggingScale = true; scrubScale(e.clientX); });
+      window.addEventListener('mousemove', (e) => { if (draggingScale) scrubScale(e.clientX); });
+      window.addEventListener('mouseup', () => { draggingScale = false; });
+
+      scaleBar.addEventListener('touchstart', (e) => {
+        draggingScale = true;
+        scrubScale(e.touches[0].clientX);
+      }, { passive: true });
+      scaleBar.addEventListener('touchmove', (e) => {
+        if (draggingScale) scrubScale(e.touches[0].clientX);
+      }, { passive: true });
+      scaleBar.addEventListener('touchend', () => { draggingScale = false; });
+
+      // Rueda del ratón en vista de radio
+      $('#view-radio').addEventListener('wheel', (e) => {
+        e.preventDefault();
+        setFrequency(state.freq + (e.deltaY < 0 ? 0.1 : -0.1));
+      }, { passive: false });
+
+      // Perilla rotatoria táctil
+      const knob = $('#rotary-knob');
+      let draggingKnob = false;
+      let lastKnobX = 0;
+      knob.addEventListener('mousedown', (e) => { draggingKnob = true; lastKnobX = e.clientX; });
+      window.addEventListener('mousemove', (e) => {
+        if (!draggingKnob) return;
+        const dx = e.clientX - lastKnobX;
+        if (Math.abs(dx) >= 6) {
+          setFrequency(state.freq + (dx > 0 ? 0.1 : -0.1));
+          lastKnobX = e.clientX;
+        }
+      });
+      window.addEventListener('mouseup', () => { draggingKnob = false; });
+
+      knob.addEventListener('touchstart', (e) => {
+        draggingKnob = true;
+        lastKnobX = e.touches[0].clientX;
+      }, { passive: true });
+      knob.addEventListener('touchmove', (e) => {
+        if (!draggingKnob) return;
+        const dx = e.touches[0].clientX - lastKnobX;
+        if (Math.abs(dx) >= 6) {
+          setFrequency(state.freq + (dx > 0 ? 0.1 : -0.1));
+          lastKnobX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+      knob.addEventListener('touchend', () => { draggingKnob = false; });
+
+      // Interruptor AFC y Squelch
+      $('#btn-toggle-afc').addEventListener('click', () => {
+        state.afc = !state.afc;
+        audio.playSwitchHeavy();
+        $('#label-afc').textContent = state.afc ? 'ON' : 'OFF';
+        $('#led-afc').className = state.afc
+          ? 'w-2.5 h-2.5 rounded-full bg-[#33ff66] shadow-[0_0_6px_#33ff66]'
+          : 'w-2.5 h-2.5 rounded-full bg-[#444b48]';
+        updateRadioUI();
+      });
+
+      $('#slider-squelch').addEventListener('input', (e) => {
+        state.squelch = parseInt(e.target.value, 10);
+        updateRadioUI();
+      });
+
+      // Registrar señal en bitácora
+      $('#btn-log-signal').addEventListener('click', logCurrentSignal);
+
+      // Pestañas del Terminal CRT
+      $$('.crt-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          audio.playClick(760, 0.03, 0.14);
+          state.crtTab = btn.dataset.crtTab;
+          renderCRTTab();
+        });
+      });
+
+      // Controles de grabadora TEAC-82
+      $('#btn-tape-play').addEventListener('click', playTape);
+      $('#btn-tape-stop').addEventListener('click', stopTape);
+      $('#btn-tape-rew').addEventListener('click', rewindTape);
+
+      // Teléfono fijo
+      $('#btn-phone-pickup').addEventListener('click', pickupPhone);
+      $('#btn-phone-hangup').addEventListener('click', () => {
+        audio.playSwitchHeavy();
+        audio.stopSpeech();
+        if (!state.phoneRinging) {
+          $('#phone-call-transcript').textContent = '[ AURICULAR COLGADO ]';
+        }
+      });
+
+      // Disyuntor de alta tensión junto a la ventana
+      $('#btn-breaker-normal').addEventListener('click', () => {
+        audio.playSwitchHeavy();
+        state.breakerMode = 'normal';
+        renderWindowUI();
+      });
+      $('#btn-breaker-overload').addEventListener('click', () => {
+        audio.playSwitchHeavy();
+        state.breakerMode = 'overload';
+        addLog('ADVERTENCIA ELÉCTRICA: Banco de condensadores puesto en SOBRECARGA.', true);
+        renderWindowUI();
+      });
+
+      // Modales de Audio y Archivo de Finales
+      $('#btn-boot-audio').addEventListener('click', () => {
+        audio.init();
+        $('#modal-audio').classList.remove('hidden');
+      });
+      $('#btn-open-pause').addEventListener('click', () => {
+        $('#modal-audio').classList.remove('hidden');
+      });
+      $('#btn-close-audio').addEventListener('click', () => $('#modal-audio').classList.add('hidden'));
+      $('#btn-resume-audio').addEventListener('click', () => $('#modal-audio').classList.add('hidden'));
+
+      ['master', 'radio', 'ambient', 'sfx'].forEach(ch => {
+        $(`#vol-${ch}`).addEventListener('input', (e) => {
+          const val = parseInt(e.target.value, 10);
+          $(`#vol-label-${ch}`).textContent = `${val}%`;
+          audio.setVolume(ch, val / 100);
+        });
+      });
+
+      $('#btn-boot-endings').addEventListener('click', () => {
+        renderEndingsArchive();
+        $('#modal-endings').classList.remove('hidden');
+      });
+      $('#btn-close-endings').addEventListener('click', () => $('#modal-endings').classList.add('hidden'));
+      $('#btn-close-endings-2').addEventListener('click', () => $('#modal-endings').classList.add('hidden'));
+
+      $('#btn-restart-shift').addEventListener('click', () => window.location.reload());
+      $('#btn-ending-replay').addEventListener('click', () => window.location.reload());
+    };
+  </script>
+</body>
+</html>
