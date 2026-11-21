@@ -1,0 +1,3013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ECHOES BELOW — 2.000 metros bajo tierra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg-void: #07090b;
+      --panel-bg: rgba(9, 12, 15, 0.84);
+      --panel-border: rgba(205, 227, 222, 0.14);
+      --text-main: #d8e2df;
+      --text-dim: #7f8f8b;
+      --accent-cold: #9fc2ba;
+      --accent-amber: #d99a36;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Viñeta atmosférica sutil y grano cinematográfico */
+    #vignette-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background: radial-gradient(circle at center, rgba(7, 9, 11, 0) 48%, rgba(4, 6, 8, 0.78) 100%);
+      transition: opacity 0.6s ease, transform 0.4s ease;
+    }
+
+    #grain-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0.045;
+      background-image: repeating-radial-gradient(circle at 17% 32%, rgba(255,255,255,0.18) 0, rgba(0,0,0,0.18) 1px, transparent 2px);
+      background-size: 4px 4px;
+    }
+
+    /* Fundido de transición de escena / desenlace */
+    #fade-curtain {
+      position: fixed;
+      inset: 0;
+      z-index: 25;
+      background: #07090b;
+      opacity: 1;
+      pointer-events: none;
+      transition: opacity 2.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #fade-curtain.clear {
+      opacity: 0;
+    }
+
+    #fade-curtain.warm-end {
+      background: #e9e4da;
+      opacity: 1;
+      transition: opacity 4.2s ease-in-out;
+    }
+
+    /* HUD minimalista en juego */
+    #hud {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+
+    #hud.visible {
+      opacity: 1;
+    }
+
+    /* Retícula central casi imperceptible */
+    #reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 4px;
+      margin: -2px 0 0 -2px;
+      border-radius: 50%;
+      background: rgba(205, 227, 222, 0.22);
+      transition: transform 0.25s ease, background 0.25s ease, opacity 0.4s ease;
+    }
+
+    #reticle.focusing {
+      transform: scale(1.7);
+      background: rgba(217, 154, 54, 0.55);
+    }
+
+    /* Indicador de distancia discreto */
+    #distance-readout {
+      position: absolute;
+      bottom: 26px;
+      left: 32px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      color: rgba(205, 227, 222, 0.42);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: opacity 0.8s ease, color 0.8s ease;
+    }
+
+    #distance-readout .marker-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(159, 194, 186, 0.45);
+    }
+
+    #distance-readout.warm .marker-dot {
+      background: rgba(217, 154, 54, 0.85);
+    }
+
+    /* Botón discreto de pausa / menú */
+    #hud-pause-btn {
+      position: absolute;
+      top: 22px;
+      right: 26px;
+      pointer-events: auto;
+      background: rgba(9, 12, 15, 0.45);
+      border: 1px solid rgba(205, 227, 222, 0.12);
+      color: rgba(205, 227, 222, 0.55);
+      padding: 7px 13px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: all 0.25s ease;
+    }
+
+    #hud-pause-btn:hover {
+      color: var(--text-main);
+      border-color: rgba(205, 227, 222, 0.32);
+      background: rgba(15, 20, 24, 0.78);
+    }
+
+    /* Sugerencia inicial de controles que se desvanece */
+    #controls-hint {
+      position: absolute;
+      bottom: 28px;
+      right: 32px;
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      color: rgba(205, 227, 222, 0.46);
+      text-align: right;
+      line-height: 1.6;
+      transition: opacity 1.5s ease;
+    }
+
+    #controls-hint.hidden {
+      opacity: 0;
+    }
+
+    /* Susurro / pensamiento breve en pantalla (muy sutil, sin diálogos largos) */
+    #thought-caption {
+      position: absolute;
+      bottom: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(88vw, 620px);
+      text-align: center;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(1.1rem, 2vw, 1.38rem);
+      letter-spacing: 0.03em;
+      color: rgba(224, 232, 229, 0.84);
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+      opacity: 0;
+      transition: opacity 1.4s ease;
+    }
+
+    #thought-caption.visible {
+      opacity: 1;
+    }
+
+    /* Aviso de captura de ratón si se sale de Pointer Lock */
+    #pointer-hint {
+      position: absolute;
+      top: 24px;
+      left: 32px;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: rgba(217, 154, 54, 0.75);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    #pointer-hint.visible {
+      opacity: 1;
+    }
+
+    /* Contenedores de menús */
+    .screen-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(90deg, rgba(6, 8, 10, 0.86) 0%, rgba(6, 8, 10, 0.52) 55%, rgba(6, 8, 10, 0.72) 100%);
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .screen-layer.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Menú principal asimétrico y cinematográfico */
+    #main-menu {
+      justify-content: flex-start;
+      padding-left: clamp(28px, 8vw, 120px);
+    }
+
+    .menu-hero {
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .game-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent-cold);
+      opacity: 0.75;
+    }
+
+    .game-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(2.8rem, 6vw, 4.6rem);
+      line-height: 0.96;
+      letter-spacing: 0.14em;
+      color: #e6eeec;
+      text-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    }
+
+    .game-subtitle {
+      font-size: 0.9rem;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--text-dim);
+      max-width: 390px;
+    }
+
+    .menu-nav {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .menu-btn {
+      background: transparent;
+      border: none;
+      border-left: 2px solid transparent;
+      padding: 10px 18px 10px 14px;
+      color: rgba(216, 226, 223, 0.76);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .menu-btn:hover, .menu-btn:focus-visible {
+      color: #ffffff;
+      border-left-color: var(--accent-amber);
+      padding-left: 22px;
+      outline: none;
+    }
+
+    .menu-btn.primary {
+      color: #eef5f3;
+      font-weight: 500;
+    }
+
+    /* Paneles modales (Configuración, Créditos, Pausa) */
+    .modal-card {
+      width: min(92vw, 480px);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 32px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid rgba(205, 227, 222, 0.1);
+      padding-bottom: 14px;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.65rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #e6eeec;
+    }
+
+    .setting-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .setting-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--text-main);
+      letter-spacing: 0.04em;
+    }
+
+    .setting-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-cold);
+    }
+
+    .setting-desc {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: rgba(205, 227, 222, 0.16);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-cold);
+      border: 2px solid #090c0e;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      background: var(--accent-amber);
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(205, 227, 222, 0.08);
+      border-radius: 8px;
+    }
+
+    .pill-btn {
+      background: rgba(205, 227, 222, 0.08);
+      border: 1px solid rgba(205, 227, 222, 0.2);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pill-btn.active {
+      background: rgba(217, 154, 54, 0.22);
+      border-color: var(--accent-amber);
+      color: #f6d59b;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .action-btn {
+      background: rgba(205, 227, 222, 0.08);
+      border: 1px solid rgba(205, 227, 222, 0.22);
+      color: var(--text-main);
+      padding: 10px 20px;
+      border-radius: 7px;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: rgba(205, 227, 222, 0.16);
+      border-color: rgba(205, 227, 222, 0.42);
+      color: #fff;
+    }
+
+    .action-btn.amber {
+      border-color: rgba(217, 154, 54, 0.5);
+      background: rgba(217, 154, 54, 0.14);
+      color: #f4d399;
+    }
+
+    .action-btn.amber:hover {
+      background: rgba(217, 154, 54, 0.26);
+    }
+
+    /* Créditos y nota de sensibilidad */
+    .credits-body {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-size: 0.84rem;
+      line-height: 1.65;
+      color: rgba(216, 226, 223, 0.82);
+    }
+
+    .credits-note {
+      padding: 12px 14px;
+      border-left: 2px solid var(--accent-amber);
+      background: rgba(217, 154, 54, 0.06);
+      font-size: 0.8rem;
+      color: rgba(216, 226, 223, 0.76);
+      border-radius: 0 6px 6px 0;
+    }
+
+    /* Pantalla final contemplativa */
+    #ending-screen {
+      z-index: 30;
+      background: #141311;
+      flex-direction: column;
+      text-align: center;
+      padding: 32px;
+    }
+
+    .ending-content {
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .ending-quote {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1.45rem, 3vw, 2.05rem);
+      font-weight: 400;
+      line-height: 1.55;
+      color: #ece6dc;
+      letter-spacing: 0.02em;
+    }
+
+    .ending-sub {
+      font-size: 0.86rem;
+      line-height: 1.7;
+      color: #9e978c;
+      max-width: 460px;
+    }
+
+    .ending-stats {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem;
+      letter-spacing: 0.16em;
+      color: rgba(217, 154, 54, 0.82);
+      padding: 10px 18px;
+      border-top: 1px solid rgba(236, 230, 220, 0.12);
+      border-bottom: 1px solid rgba(236, 230, 220, 0.12);
+    }
+
+    /* Controles táctiles discretos para dispositivos móviles/tablets */
+    #touch-controls {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    @media (pointer: coarse) {
+      #touch-controls {
+        display: block;
+      }
+      #controls-hint {
+        display: none;
+      }
+    }
+
+    #touch-walk-btn {
+      position: absolute;
+      bottom: 36px;
+      right: 32px;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(15, 20, 24, 0.55);
+      border: 1px solid rgba(205, 227, 222, 0.25);
+      color: rgba(205, 227, 222, 0.8);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    #touch-walk-btn:active {
+      background: rgba(217, 154, 54, 0.28);
+      border-color: var(--accent-amber);
+    }
+  </style>
+</head>
+<body>
+  <!-- Lienzo 3D -->
+  <div id="canvas-container"></div>
+  <div id="vignette-overlay"></div>
+  <div id="grain-overlay"></div>
+  <div id="fade-curtain"></div>
+
+  <!-- Interfaz mínima en partida -->
+  <div id="hud">
+    <div id="reticle"></div>
+    <div id="pointer-hint">Haz clic en el túnel para fijar la mirada · ESC para pausar</div>
+    <button id="hud-pause-btn" type="button">Pausa</button>
+    <div id="thought-caption"></div>
+    <div id="distance-readout">
+      <span class="marker-dot"></span>
+      <span id="distance-text">0000 m / 2000 m</span>
+    </div>
+    <div id="touch-controls">
+      <button id="touch-walk-btn" type="button">Avanzar</button>
+    </div>
+    <div id="controls-hint">
+      WASD · Caminar &nbsp;|&nbsp; Shift · Paso ligero<br />
+      Ratón · Mirar &nbsp;|&nbsp; Clic derecho / F · Enfocar
+    </div>
+  </div>
+
+  <!-- Menú Principal -->
+  <section id="main-menu" class="screen-layer">
+    <div class="menu-hero">
+      <div class="game-kicker">Experiencia narrativa en primera persona</div>
+      <h1 class="game-title">ECHOES<br />BELOW</h1>
+      <p class="game-subtitle">
+        Dos kilómetros de concreto húmedo, luces que dudan y el eco de tus propios pasos bajo la ciudad dormida. Recomendado jugar con auriculares.
+      </p>
+      <nav class="menu-nav" aria-label="Menú principal">
+        <button id="btn-start" class="menu-btn primary" type="button">Comenzar</button>
+        <button id="btn-settings" class="menu-btn" type="button">Configuración</button>
+        <button id="btn-credits" class="menu-btn" type="button">Créditos</button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Menú de Pausa -->
+  <section id="pause-menu" class="screen-layer hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Pausa</h2>
+        <span id="pause-distance" class="setting-value">0000 m</span>
+      </div>
+      <p class="setting-desc">
+        Tómate el tiempo que necesites. El túnel no tiene prisa.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button id="btn-resume" class="action-btn amber" type="button">Continuar recorrido</button>
+        <button id="btn-pause-settings" class="action-btn" type="button">Configuración de audio y control</button>
+        <button id="btn-restart" class="action-btn" type="button">Reiniciar desde 0000 m</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel de Configuración -->
+  <section id="settings-menu" class="screen-layer hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Configuración</h2>
+        <span class="setting-value">AUDIO · CONTROL</span>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label-row">
+          <label for="opt-master-vol">Volumen general</label>
+          <span id="val-master-vol" class="setting-value">85%</span>
+        </div>
+        <input id="opt-master-vol" type="range" min="0" max="100" value="85" />
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label-row">
+          <label for="opt-ambient-vol">Ambiente, agua y pasos</label>
+          <span id="val-ambient-vol" class="setting-value">90%</span>
+        </div>
+        <input id="opt-ambient-vol" type="range" min="0" max="100" value="90" />
+      </div>
+
+      <div class="toggle-row">
+        <div>
+          <div style="font-size:0.83rem; color:var(--text-main);">Efectos psicológicos sonoros</div>
+          <div class="setting-desc">Murmullos distantes, pasos desfasados y chasquidos perceptivos.</div>
+        </div>
+        <button id="btn-toggle-psych" class="pill-btn active" type="button">Activados</button>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label-row">
+          <label for="opt-psych-vol">Intensidad de efectos psicológicos</label>
+          <span id="val-psych-vol" class="setting-value">80%</span>
+        </div>
+        <input id="opt-psych-vol" type="range" min="0" max="100" value="80" />
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label-row">
+          <label for="opt-sensitivity">Sensibilidad de cámara</label>
+          <span id="val-sensitivity" class="setting-value">1.0x</span>
+        </div>
+        <input id="opt-sensitivity" type="range" min="30" max="220" value="100" />
+      </div>
+
+      <div class="toggle-row">
+        <div>
+          <div style="font-size:0.83rem; color:var(--text-main);">Calidad visual</div>
+          <div class="setting-desc">Ajusta resolución de reflejos y partículas en suspensión.</div>
+        </div>
+        <button id="btn-toggle-quality" class="pill-btn active" type="button">Alta</button>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-close-settings" class="action-btn amber" type="button">Guardar y volver</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel de Créditos -->
+  <section id="credits-menu" class="screen-layer hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Créditos</h2>
+        <span class="setting-value">ESTUDIO INDEPENDIENTE</span>
+      </div>
+      <div class="credits-body">
+        <p>
+          <strong>ECHOES BELOW</strong> es una obra interactiva breve centrada en la atmósfera arquitectónica, el paisaje sonoro espacial y la fragilidad de la percepción humana.
+        </p>
+        <div class="credits-note">
+          Nota de diseño: Esta experiencia aborda síntomas perceptivos asociados a la esquizofrenia —como alucinaciones auditivas sutiles, pareidolia y alteración espacial— desde la empatía y la vulnerabilidad, alejándose deliberadamente de estereotipos de violencia o monstruosidad.
+        </div>
+        <p style="font-size:0.78rem; color:var(--text-dim);">
+          Motor 3D procedural: Three.js &nbsp;·&nbsp; Síntesis acústica espacial en tiempo real: Web Audio API.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-close-credits" class="action-btn" type="button">Cerrar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pantalla Final -->
+  <section id="ending-screen" class="screen-layer hidden">
+    <div class="ending-content">
+      <div class="game-kicker" style="color:#d99a36;">2.000 metros completados</div>
+      <blockquote class="ending-quote">
+        «No todo lo que oí en la oscuridad me pertenecía, pero cada paso hasta la salida sí fue mío.»
+      </blockquote>
+      <p class="ending-sub">
+        El aire frío de la madrugada sustituye al zumbido eléctrico. El túnel queda atrás, intacto en su silencio de concreto y agua.
+      </p>
+      <div id="ending-stats" class="ending-stats">RECORRIDO: 2.000 M · TIEMPO: 00:00</div>
+      <div style="display:flex; gap:14px; margin-top:8px;">
+        <button id="btn-play-again" class="action-btn amber" type="button">Recorrer de nuevo</button>
+        <button id="btn-ending-menu" class="action-btn" type="button">Menú inicial</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /**
+     * ============================================================================
+     * ECHOES BELOW — Motor de Simulación Psicológica, Renderizado 3D y Audio Espacial
+     * ============================================================================
+     * Arquitectura modular autocontenida:
+     * 1. GameConfig: Estado global de ajustes de usuario y preferencias.
+     * 2. TextureFactory: Generación procedural en Canvas 2D de texturas PBR
+     *    (concreto envejecido, suelo con charcos especulares, metal oxidado,
+     *    señalización diegética cada 50m y ventanas con lluvia).
+     * 3. SpatialAudioEngine: Síntesis procedural en tiempo real mediante Web Audio API
+     *    con reverberación por convolución (respuesta al impulso de túnel largo),
+     *    zumbido eléctrico sincronizado con el parpadeo de luminarias, goteos,
+     *    viento subterráneo, pasos con eco slapback y capa psicológica mutable.
+     * 4. TunnelWorld: Construcción modular con reciclaje de segmentos (object pooling)
+     *    para simular 2.000 metros reales con iluminación dinámica optimizada,
+     *    partículas de polvo y gotas de agua.
+     * 5. PsychologyDirector: Orquestación narrativa en 3 actos y 5 fenómenos
+     *    perceptivos sutiles, respetuosos y contextuales.
+     * 6. EchoesApp: Controlador principal, cámara en primera persona, colisiones
+     *    suaves y bucle de renderizado.
+     */
+
+    'use strict';
+
+    const TUNNEL_LENGTH = 2000; // 2.000 metros exactos
+    const SEGMENT_LENGTH = 10;  // Cada módulo mide 10 metros
+    const POOL_COUNT = 18;      // 180 metros visibles simultáneamente (40m atrás + 140m adelante)
+
+    const GameConfig = {
+      masterVolume: 0.85,
+      ambientVolume: 0.90,
+      psychEnabled: true,
+      psychVolume: 0.80,
+      mouseSensitivity: 1.0,
+      highQuality: true
+    };
+
+    /* ==========================================================================
+       1. GENERADOR PROCEDURAL DE TEXTURAS Y MATERIALES (CANVAS 2D -> THREE.JS)
+       ========================================================================== */
+    class TextureFactory {
+      constructor() {
+        this.cache = new Map();
+      }
+
+      // Ruido pseudoaleatorio determinista para consistencia visual
+      hash(x, y) {
+        const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
+        return n - Math.floor(n);
+      }
+
+      valueNoise(x, y) {
+        const ix = Math.floor(x);
+        const iy = Math.floor(y);
+        const fx = x - ix;
+        const fy = y - iy;
+        const ux = fx * fx * (3 - 2 * fx);
+        const uy = fy * fy * (3 - 2 * fy);
+        const a = this.hash(ix, iy);
+        const b = this.hash(ix + 1, iy);
+        const c = this.hash(ix, iy + 1);
+        const d = this.hash(ix + 1, iy + 1);
+        return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
+      }
+
+      fbm(x, y, octaves = 4) {
+        let val = 0;
+        let amp = 0.5;
+        let freq = 1;
+        for (let i = 0; i < octaves; i++) {
+          val += amp * this.valueNoise(x * freq, y * freq);
+          freq *= 2.02;
+          amp *= 0.5;
+        }
+        return val;
+      }
+
+      /**
+       * Genera mapas Difuso, Bump y Roughness para paredes de concreto envejecido y húmedo
+       */
+      createConcreteSet() {
+        if (this.cache.has('concrete')) return this.cache.get('concrete');
+
+        const size = 512;
+        const diffCanvas = document.createElement('canvas');
+        const bumpCanvas = document.createElement('canvas');
+        const roughCanvas = document.createElement('canvas');
+        diffCanvas.width = bumpCanvas.width = roughCanvas.width = size;
+        diffCanvas.height = bumpCanvas.height = roughCanvas.height = size;
+
+        const dCtx = diffCanvas.getContext('2d');
+        const bCtx = bumpCanvas.getContext('2d');
+        const rCtx = roughCanvas.getContext('2d');
+
+        const dImg = dCtx.createImageData(size, size);
+        const bImg = bCtx.createImageData(size, size);
+        const rImg = rCtx.createImageData(size, size);
+
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const idx = (y * size + x) * 4;
+            const nx = x / size;
+            const ny = y / size;
+
+            // Grano base de concreto y manchas de humedad
+            const macro = this.fbm(nx * 5, ny * 5, 4);
+            const micro = this.fbm(nx * 36, ny * 36, 3);
+            // Filtraciones verticales de agua desde la bóveda
+            const drip = this.fbm(nx * 18, ny * 2.2, 4);
+            const wetness = Math.max(0, (drip - 0.52) * 2.4 + (1.0 - ny) * 0.18);
+
+            // Juntas de encofrado horizontal y vertical
+            const seamX = (x % 128 < 2) ? 0.72 : 1.0;
+            const seamY = (y % 256 < 2) ? 0.75 : 1.0;
+            const seam = seamX * seamY;
+
+            // Paleta fría: grises pizarra y verdosos apagados
+            const baseTone = (34 + macro * 24 + micro * 12) * seam;
+            const dampDarken = 1.0 - Math.min(0.45, wetness * 0.42);
+
+            const r = Math.max(10, Math.min(255, baseTone * 0.92 * dampDarken));
+            const g = Math.max(12, Math.min(255, baseTone * 1.02 * dampDarken));
+            const b = Math.max(14, Math.min(255, baseTone * 1.05 * dampDarken));
+
+            dImg.data[idx] = r;
+            dImg.data[idx + 1] = g;
+            dImg.data[idx + 2] = b;
+            dImg.data[idx + 3] = 255;
+
+            const bumpVal = Math.max(0, Math.min(255, (macro * 110 + micro * 120) * seam));
+            bImg.data[idx] = bImg.data[idx + 1] = bImg.data[idx + 2] = bumpVal;
+            bImg.data[idx + 3] = 255;
+
+            // Zonas húmedas reflejan más luz (menor rugosidad)
+            const roughVal = Math.max(45, Math.min(245, 225 - wetness * 145 + micro * 25));
+            rImg.data[idx] = rImg.data[idx + 1] = rImg.data[idx + 2] = roughVal;
+            rImg.data[idx + 3] = 255;
+          }
+        }
+
+        dCtx.putImageData(dImg, 0, 0);
+        bCtx.putImageData(bImg, 0, 0);
+        rCtx.putImageData(rImg, 0, 0);
+
+        // Grietas finas en concreto
+        dCtx.strokeStyle = 'rgba(10, 13, 15, 0.55)';
+        bCtx.strokeStyle = 'rgba(20, 20, 20, 0.85)';
+        for (let c = 0; c < 7; c++) {
+          let cx = this.hash(c, 1.3) * size;
+          let cy = this.hash(c, 7.9) * size;
+          dCtx.lineWidth = 1.1;
+          bCtx.lineWidth = 1.6;
+          dCtx.beginPath();
+          bCtx.beginPath();
+          dCtx.moveTo(cx, cy);
+          bCtx.moveTo(cx, cy);
+          for (let s = 0; s < 14; s++) {
+            cx += (this.hash(c * 20 + s, 2.1) - 0.5) * 26;
+            cy += this.hash(c * 20 + s, 5.4) * 24;
+            dCtx.lineTo(cx, cy);
+            bCtx.lineTo(cx, cy);
+          }
+          dCtx.stroke();
+          bCtx.stroke();
+        }
+
+        const setupTex = (canvas, isColor) => {
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.wrapS = THREE.RepeatWrapping;
+          tex.wrapT = THREE.RepeatWrapping;
+          tex.repeat.set(2, 2);
+          if (isColor) tex.encoding = THREE.sRGBEncoding;
+          return tex;
+        };
+
+        const result = {
+          map: setupTex(diffCanvas, true),
+          bumpMap: setupTex(bumpCanvas, false),
+          roughnessMap: setupTex(roughCanvas, false)
+        };
+        this.cache.set('concrete', result);
+        return result;
+      }
+
+      /**
+       * Genera el suelo húmedo con charcos especulares de baja rugosidad (~0.05)
+       * que reflejan las luces fluorescentes y ámbar del túnel.
+       */
+      createWetFloorSet() {
+        if (this.cache.has('wetFloor')) return this.cache.get('wetFloor');
+
+        const size = 512;
+        const diffCanvas = document.createElement('canvas');
+        const bumpCanvas = document.createElement('canvas');
+        const roughCanvas = document.createElement('canvas');
+        diffCanvas.width = bumpCanvas.width = roughCanvas.width = size;
+        diffCanvas.height = bumpCanvas.height = roughCanvas.height = size;
+
+        const dCtx = diffCanvas.getContext('2d');
+        const bCtx = bumpCanvas.getContext('2d');
+        const rCtx = roughCanvas.getContext('2d');
+
+        const dImg = dCtx.createImageData(size, size);
+        const bImg = bCtx.createImageData(size, size);
+        const rImg = rCtx.createImageData(size, size);
+
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const idx = (y * size + x) * 4;
+            const nx = x / size;
+            const ny = y / size;
+
+            // Máscara orgánica de charcos (enlazada suavemente)
+            const puddleField = this.fbm(nx * 3.5 + 1.2, ny * 3.5 + 4.7, 4);
+            const microGrain = this.fbm(nx * 44, ny * 44, 2);
+            const isPuddle = puddleField > 0.53;
+            const edgeBlend = Math.max(0, Math.min(1, (puddleField - 0.50) * 14));
+
+            // El agua estancada oscurece el fondo y alisa el relieve
+            const base = (24 + microGrain * 16) * (1 - edgeBlend * 0.48);
+            dImg.data[idx] = base * 0.92;
+            dImg.data[idx + 1] = base * 1.02;
+            dImg.data[idx + 2] = base * 1.08;
+            dImg.data[idx + 3] = 255;
+
+            const bump = isPuddle ? 126 + microGrain * 4 : 95 + microGrain * 110;
+            bImg.data[idx] = bImg.data[idx + 1] = bImg.data[idx + 2] = bump;
+            bImg.data[idx + 3] = 255;
+
+            // Charcos: roughness ~ 0.055 (valor 14/255) para reflejos especulares nítidos
+            const rough = Math.round(205 * (1 - edgeBlend) + 14 * edgeBlend);
+            rImg.data[idx] = rImg.data[idx + 1] = rImg.data[idx + 2] = rough;
+            rImg.data[idx + 3] = 255;
+          }
+        }
+
+        dCtx.putImageData(dImg, 0, 0);
+        bCtx.putImageData(bImg, 0, 0);
+        rCtx.putImageData(rImg, 0, 0);
+
+        const wrap = (canvas, isColor) => {
+          const t = new THREE.CanvasTexture(canvas);
+          t.wrapS = THREE.RepeatWrapping;
+          t.wrapT = THREE.RepeatWrapping;
+          t.repeat.set(1.5, 2.5);
+          if (isColor) t.encoding = THREE.sRGBEncoding;
+          return t;
+        };
+
+        const result = {
+          map: wrap(diffCanvas, true),
+          bumpMap: wrap(bumpCanvas, false),
+          roughnessMap: wrap(roughCanvas, false)
+        };
+        this.cache.set('wetFloor', result);
+        return result;
+      }
+
+      /**
+       * Señalización diegética industrial (distancias cada 50m, salida, o variantes alteradas)
+       */
+      createSignTexture(mainText, subText = 'SECTOR SUBTERRÁNEO', variant = 'standard') {
+        const key = `sign_${mainText}_${subText}_${variant}`;
+        if (this.cache.has(key)) return this.cache.get(key);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 224;
+        const ctx = canvas.getContext('2d');
+
+        // Fondo metálico desgastado
+        if (variant === 'exit') {
+          ctx.fillStyle = '#14261e';
+        } else if (variant === 'altered') {
+          ctx.fillStyle = '#1b1d1c';
+        } else {
+          ctx.fillStyle = '#181e21';
+        }
+        ctx.fillRect(0, 0, 512, 224);
+
+        // Borde industrial
+        ctx.strokeStyle = variant === 'exit' ? '#4f9c78' : 'rgba(205, 227, 222, 0.36)';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(10, 10, 492, 204);
+
+        // Franja superior de precaución
+        ctx.fillStyle = variant === 'exit' ? '#2c6b4f' : '#263034';
+        ctx.fillRect(16, 16, 480, 34);
+
+        ctx.fillStyle = variant === 'exit' ? '#d9f2e6' : '#9ab0aa';
+        ctx.font = '600 17px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(subText, 256, 39);
+
+        // Texto principal
+        ctx.fillStyle = variant === 'exit' ? '#e7fff3' : (variant === 'altered' ? '#d9b57c' : '#dce6e3');
+        const fontSize = mainText.length > 9 ? 42 : 76;
+        ctx.font = `600 ${fontSize}px "JetBrains Mono", monospace`;
+        ctx.fillText(mainText, 256, 144);
+
+        // Suciedad y desgaste procedural
+        for (let i = 0; i < 420; i++) {
+          const x = this.hash(i, 3.1) * 512;
+          const y = this.hash(i, 8.7) * 224;
+          const r = 1 + this.hash(i, 5.2) * 3.5;
+          ctx.fillStyle = `rgba(8, 10, 11, ${0.12 + this.hash(i, 1.9) * 0.25})`;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Tornillos en las esquinas
+        ctx.fillStyle = '#0d1012';
+        [[26, 26], [486, 26], [26, 198], [486, 198]].forEach(([bx, by]) => {
+          ctx.beginPath();
+          ctx.arc(bx, by, 5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.encoding = THREE.sRGBEncoding;
+        this.cache.set(key, tex);
+        return tex;
+      }
+
+      /**
+       * Textura suave para partículas de polvo y gotas
+       */
+      createParticleTexture() {
+        if (this.cache.has('particle')) return this.cache.get('particle');
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, 'rgba(225, 238, 234, 0.95)');
+        grad.addColorStop(0.45, 'rgba(200, 220, 214, 0.35)');
+        grad.addColorStop(1, 'rgba(200, 220, 214, 0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 64, 64);
+        const tex = new THREE.CanvasTexture(canvas);
+        this.cache.set('particle', tex);
+        return tex;
+      }
+
+      /**
+       * Textura de ventana doméstica iluminada con lluvia (Acto III - Memoria)
+       */
+      createMemoryWindowTexture() {
+        if (this.cache.has('memWindow')) return this.cache.get('memWindow');
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 384;
+        const ctx = canvas.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, 0, 384);
+        grad.addColorStop(0, '#ffcf87');
+        grad.addColorStop(0.6, '#e39a4b');
+        grad.addColorStop(1, '#9c5d27');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 384);
+
+        // Gotas y estelas de lluvia en el cristal
+        ctx.strokeStyle = 'rgba(255, 245, 225, 0.35)';
+        for (let i = 0; i < 65; i++) {
+          const rx = this.hash(i, 4.4) * 256;
+          const ry = this.hash(i, 9.1) * 340;
+          const len = 12 + this.hash(i, 2.7) * 28;
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(rx, ry);
+          ctx.lineTo(rx - 2, ry + len);
+          ctx.stroke();
+        }
+
+        // Travesaños de madera de la ventana
+        ctx.fillStyle = '#241811';
+        ctx.fillRect(0, 0, 256, 16);
+        ctx.fillRect(0, 368, 256, 16);
+        ctx.fillRect(0, 0, 16, 384);
+        ctx.fillRect(240, 0, 16, 384);
+        ctx.fillRect(122, 0, 12, 384);
+        ctx.fillRect(0, 186, 256, 12);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.encoding = THREE.sRGBEncoding;
+        this.cache.set('memWindow', tex);
+        return tex;
+      }
+    }
+
+    /* ==========================================================================
+       2. MOTOR DE AUDIO ESPACIAL PROCEDURAL (WEB AUDIO API)
+       ========================================================================== */
+    class SpatialAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.initialized = false;
+        this.masterGain = null;
+        this.ambientGain = null;
+        this.psychGain = null;
+        this.reverbNode = null;
+        this.reverbWetGain = null;
+
+        this.humGain = null;
+        this.humBuzzGain = null;
+        this.windFilter = null;
+        this.windGain = null;
+
+        this.nextDripTime = 0;
+        this.nextCreakTime = 0;
+        this.silenceUntil = 0;
+        this.nextSilenceCheck = 18;
+        this.nextPianoTime = 0;
+        this.pianoStep = 0;
+
+        this.whisperActive = false;
+        this.whisperNodes = null;
+      }
+
+      init() {
+        if (this.initialized) {
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          return;
+        }
+
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+
+        // Compresor suave para evitar saturación en picos de eco
+        const compressor = this.ctx.createDynamicsCompressor();
+        compressor.threshold.value = -16;
+        compressor.knee.value = 18;
+        compressor.ratio.value = 4;
+        compressor.attack.value = 0.01;
+        compressor.release.value = 0.25;
+
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = GameConfig.masterVolume;
+        compressor.connect(this.masterGain);
+        this.masterGain.connect(this.ctx.destination);
+
+        // Buses separados
+        this.ambientGain = this.ctx.createGain();
+        this.ambientGain.gain.value = GameConfig.ambientVolume;
+        this.ambientGain.connect(compressor);
+
+        this.psychGain = this.ctx.createGain();
+        this.psychGain.gain.value = GameConfig.psychEnabled ? GameConfig.psychVolume : 0;
+        this.psychGain.connect(compressor);
+
+        // Reverberación de túnel largo mediante Impulse Response sintética
+        this.reverbNode = this.ctx.createConvolver();
+        this.reverbNode.buffer = this.createTunnelImpulse(2.6, 3.2);
+        this.reverbWetGain = this.ctx.createGain();
+        this.reverbWetGain.gain.value = 0.52;
+        this.reverbNode.connect(this.reverbWetGain);
+        this.reverbWetGain.connect(this.ambientGain);
+
+        this.setupWindDrone();
+        this.setupElectricalHum();
+        this.setupWhisperSynthesizer();
+
+        const now = this.ctx.currentTime;
+        this.nextDripTime = now + 1.5;
+        this.nextCreakTime = now + 12.0;
+        this.nextSilenceCheck = now + 24.0;
+        this.nextPianoTime = now + 2.0;
+
+        this.initialized = true;
+      }
+
+      /**
+       * Crea una respuesta al impulso acústica que emula un túnel cilíndrico de concreto
+       */
+      createTunnelImpulse(duration, decay) {
+        const rate = this.ctx.sampleRate;
+        const length = Math.floor(rate * duration);
+        const impulse = this.ctx.createBuffer(2, length, rate);
+
+        for (let ch = 0; ch < 2; ch++) {
+          const data = impulse.getChannelData(ch);
+          for (let i = 0; i < length; i++) {
+            const t = i / rate;
+            // Reflexiones tempranas discretas (eco slapback de paredes) + cola difusa
+            let early = 0;
+            if (Math.abs(t - 0.055) < 0.004) early += 0.45;
+            if (Math.abs(t - 0.125) < 0.005) early += 0.30;
+            if (Math.abs(t - 0.210) < 0.006) early += 0.18;
+
+            const noise = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+            data[i] = (noise * 0.65 + early * (Math.random() * 2 - 1));
+          }
+        }
+        return impulse;
+      }
+
+      createNoiseBuffer(seconds = 4) {
+        const size = this.ctx.sampleRate * seconds;
+        const buffer = this.ctx.createBuffer(1, size, this.ctx.sampleRate);
+        const out = buffer.getChannelData(0);
+        let lastOut = 0;
+        for (let i = 0; i < size; i++) {
+          const white = Math.random() * 2 - 1;
+          // Ruido marrón/rosa suave
+          out[i] = (lastOut + 0.04 * white) / 1.04;
+          lastOut = out[i];
+          out[i] *= 2.8;
+        }
+        return buffer;
+      }
+
+      setupWindDrone() {
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.createNoiseBuffer(5);
+        src.loop = true;
+
+        this.windFilter = this.ctx.createBiquadFilter();
+        this.windFilter.type = 'bandpass';
+        this.windFilter.frequency.value = 135;
+        this.windFilter.Q.value = 1.4;
+
+        this.windGain = this.ctx.createGain();
+        this.windGain.gain.value = 0.18;
+
+        src.connect(this.windFilter);
+        this.windFilter.connect(this.windGain);
+        this.windGain.connect(this.ambientGain);
+        src.start();
+      }
+
+      setupElectricalHum() {
+        // Zumbido de red eléctrica de 55Hz + armónico de reactancia fluorescente
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc2.type = 'triangle';
+        osc1.frequency.value = 55;
+        osc2.frequency.value = 110.4;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 260;
+
+        this.humGain = this.ctx.createGain();
+        this.humGain.gain.value = 0.03;
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(this.humGain);
+        this.humGain.connect(this.ambientGain);
+
+        // Capa aguda de chisporroteo cuando un tubo fluorescente parpadea
+        const buzzOsc = this.ctx.createOscillator();
+        buzzOsc.type = 'sawtooth';
+        buzzOsc.frequency.value = 120;
+        const buzzBand = this.ctx.createBiquadFilter();
+        buzzBand.type = 'bandpass';
+        buzzBand.frequency.value = 1450;
+        buzzBand.Q.value = 4.5;
+
+        this.humBuzzGain = this.ctx.createGain();
+        this.humBuzzGain.gain.value = 0.0;
+
+        buzzOsc.connect(buzzBand);
+        buzzBand.connect(this.humBuzzGain);
+        this.humBuzzGain.connect(this.ambientGain);
+
+        osc1.start();
+        osc2.start();
+        buzzOsc.start();
+      }
+
+      /**
+       * Sintetizador de murmullos indistintos mediante filtros formantes vocales
+       */
+      setupWhisperSynthesizer() {
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = this.createNoiseBuffer(4);
+        noise.loop = true;
+
+        const panner = this.ctx.createStereoPanner();
+        panner.pan.value = 0;
+
+        const masterWhisperGain = this.ctx.createGain();
+        masterWhisperGain.gain.value = 0;
+
+        // Tres formantes suaves que evocan cadencia vocal lejana sin palabras literales
+        const formants = [380, 1180, 2350].map((freq, idx) => {
+          const bp = this.ctx.createBiquadFilter();
+          bp.type = 'bandpass';
+          bp.frequency.value = freq;
+          bp.Q.value = idx === 0 ? 5 : 8;
+          const g = this.ctx.createGain();
+          g.gain.value = idx === 0 ? 0.55 : (idx === 1 ? 0.35 : 0.18);
+          noise.connect(bp);
+          bp.connect(g);
+          g.connect(masterWhisperGain);
+          return bp;
+        });
+
+        masterWhisperGain.connect(panner);
+        panner.connect(this.psychGain);
+        panner.connect(this.reverbNode);
+        noise.start();
+
+        this.whisperNodes = { masterWhisperGain, panner, formants };
+      }
+
+      syncVolumes() {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        this.masterGain.gain.setTargetAtTime(GameConfig.masterVolume, now, 0.06);
+        this.ambientGain.gain.setTargetAtTime(GameConfig.ambientVolume, now, 0.06);
+        const targetPsych = GameConfig.psychEnabled ? GameConfig.psychVolume : 0;
+        this.psychGain.gain.setTargetAtTime(targetPsych, now, 0.06);
+      }
+
+      /**
+       * Goteo de agua resonante en el túnel
+       */
+      triggerWaterDrip(pan = 0) {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const panner = this.ctx.createStereoPanner();
+
+        const baseFreq = 950 + Math.random() * 680;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.65, now + 0.065);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.055 + Math.random() * 0.03, now + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+
+        panner.pan.value = Math.max(-0.9, Math.min(0.9, pan));
+
+        osc.connect(gain);
+        gain.connect(panner);
+        panner.connect(this.ambientGain);
+        panner.connect(this.reverbNode);
+
+        osc.start(now);
+        osc.stop(now + 0.16);
+      }
+
+      /**
+       * Crujido metálico estructural distante
+       */
+      triggerDistantMetalCreak() {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const gain = this.ctx.createGain();
+        const panner = this.ctx.createStereoPanner();
+
+        osc.type = 'sawtooth';
+        const f0 = 72 + Math.random() * 48;
+        osc.frequency.setValueAtTime(f0, now);
+        osc.frequency.linearRampToValueAtTime(f0 * 0.84, now + 1.8);
+
+        filter.type = 'bandpass';
+        filter.frequency.value = 340 + Math.random() * 220;
+        filter.Q.value = 11;
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.035, now + 0.45);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+
+        panner.pan.value = (Math.random() * 2 - 1) * 0.75;
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(panner);
+        panner.connect(this.reverbNode);
+
+        osc.start(now);
+        osc.stop(now + 2.3);
+      }
+
+      /**
+       * Pasos del protagonista (o pasos fantasma desfasados en capa psicológica)
+       */
+      playFootstep(isBrisk = false, isPhantom = false, pan = 0) {
+        if (!this.initialized) return;
+        if (isPhantom && !GameConfig.psychEnabled) return;
+
+        const now = this.ctx.currentTime;
+        const targetBus = isPhantom ? this.psychGain : this.ambientGain;
+        const volScale = isPhantom ? 0.48 : (isBrisk ? 1.15 : 0.88);
+
+        // 1. Impacto grave del talón sobre concreto húmedo
+        const thudOsc = this.ctx.createOscillator();
+        const thudGain = this.ctx.createGain();
+        thudOsc.type = 'sine';
+        thudOsc.frequency.setValueAtTime(isPhantom ? 82 : 96, now);
+        thudOsc.frequency.exponentialRampToValueAtTime(36, now + 0.09);
+
+        thudGain.gain.setValueAtTime(0.0001, now);
+        thudGain.gain.linearRampToValueAtTime(0.14 * volScale, now + 0.008);
+        thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
+
+        // 2. Textura de suela sobre gravilla/agua fina
+        const gritSrc = this.ctx.createBufferSource();
+        gritSrc.buffer = this.createNoiseBuffer(0.3);
+        const gritFilter = this.ctx.createBiquadFilter();
+        gritFilter.type = 'bandpass';
+        gritFilter.frequency.value = isPhantom ? 780 : (1150 + Math.random() * 350);
+        gritFilter.Q.value = 1.6;
+
+        const gritGain = this.ctx.createGain();
+        gritGain.gain.setValueAtTime(0.0001, now);
+        gritGain.gain.linearRampToValueAtTime(0.055 * volScale, now + 0.012);
+        gritGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+
+        const panner = this.ctx.createStereoPanner();
+        panner.pan.value = pan;
+
+        thudOsc.connect(thudGain);
+        gritSrc.connect(gritFilter);
+        gritFilter.connect(gritGain);
+
+        thudGain.connect(panner);
+        gritGain.connect(panner);
+
+        panner.connect(targetBus);
+        panner.connect(this.reverbNode);
+
+        thudOsc.start(now);
+        thudOsc.stop(now + 0.15);
+        gritSrc.start(now);
+        gritSrc.stop(now + 0.14);
+      }
+
+      /**
+       * Chasquido eléctrico cuando una luz se apaga detrás del jugador
+       */
+      playLightSnap(pan = 0) {
+        if (!this.initialized || !GameConfig.psychEnabled) return;
+        const now = this.ctx.currentTime;
+
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.createNoiseBuffer(0.2);
+
+        const hp = this.ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.value = 1600;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.24, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+
+        const panner = this.ctx.createStereoPanner();
+        panner.pan.value = Math.max(-0.95, Math.min(0.95, pan));
+
+        src.connect(hp);
+        hp.connect(gain);
+        gain.connect(panner);
+        panner.connect(this.psychGain);
+        panner.connect(this.reverbNode);
+
+        src.start(now);
+        src.stop(now + 0.07);
+      }
+
+      /**
+       * Nota frágil de piano lejano (Acto III — Nicho de memoria a 1.800 m)
+       */
+      playMemoryPianoNote(proximityFactor) {
+        if (!this.initialized || !GameConfig.psychEnabled || proximityFactor <= 0.02) return;
+        const now = this.ctx.currentTime;
+        // Escala menor melancólica pero luminosa (La menor / Do mayor)
+        const notes = [440.0, 523.25, 659.25, 587.33, 493.88, 523.25, 392.0, 440.0];
+        const freq = notes[this.pianoStep % notes.length];
+        this.pianoStep++;
+
+        const osc = this.ctx.createOscillator();
+        const overtone = this.ctx.createOscillator();
+        osc.type = 'sine';
+        overtone.type = 'triangle';
+        osc.frequency.value = freq;
+        overtone.frequency.value = freq * 2.002;
+
+        const overGain = this.ctx.createGain();
+        overGain.gain.value = 0.14;
+
+        const env = this.ctx.createGain();
+        const peak = 0.065 * proximityFactor;
+        env.gain.setValueAtTime(0.0001, now);
+        env.gain.linearRampToValueAtTime(peak, now + 0.035);
+        env.gain.exponentialRampToValueAtTime(0.0001, now + 2.6);
+
+        osc.connect(env);
+        overtone.connect(overGain);
+        overGain.connect(env);
+
+        env.connect(this.psychGain);
+        env.connect(this.reverbNode);
+
+        osc.start(now);
+        overtone.start(now);
+        osc.stop(now + 2.7);
+        overtone.stop(now + 2.7);
+      }
+
+      /**
+       * Actualización continua del paisaje sonoro según posición, parpadeo y fenómenos
+       */
+      update(time, state) {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+
+        // Silencios deliberados ocasionales (el zumbido eléctrico cae de golpe)
+        if (now > this.nextSilenceCheck && state.distance > 180 && state.distance < 1850) {
+          this.nextSilenceCheck = now + 28 + Math.random() * 22;
+          if (Math.random() < 0.55) {
+            this.silenceUntil = now + 3.2 + Math.random() * 2.4;
+          }
+        }
+        const inDeliberateSilence = now < this.silenceUntil;
+
+        // Modulación lenta del viento subterráneo
+        const windMod = 115 + Math.sin(time * 0.42) * 32 + Math.cos(time * 0.19) * 18;
+        this.windFilter.frequency.setTargetAtTime(windMod, now, 0.2);
+        const targetWindVol = inDeliberateSilence ? 0.04 : (state.distance > 1900 ? 0.24 : 0.17);
+        this.windGain.gain.setTargetAtTime(targetWindVol, now, 0.4);
+
+        // Zumbido eléctrico espacializado según cercanía a luminaria activa y su parpadeo
+        const prox = inDeliberateSilence ? 0 : state.nearestLightInfluence;
+        const flicker = inDeliberateSilence ? 0 : state.nearestLightFlicker;
+        this.humGain.gain.setTargetAtTime(prox * 0.042, now, 0.08);
+        this.humBuzzGain.gain.setTargetAtTime(flicker * prox * 0.032, now, 0.03);
+
+        // Goteos periódicos de agua
+        if (!inDeliberateSilence && now >= this.nextDripTime) {
+          this.triggerWaterDrip((Math.random() * 2 - 1) * 0.85);
+          this.nextDripTime = now + 1.4 + Math.random() * 3.4;
+        }
+
+        // Crujidos metálicos lejanos
+        if (!inDeliberateSilence && now >= this.nextCreakTime && state.distance < 1880) {
+          this.triggerDistantMetalCreak();
+          this.nextCreakTime = now + 16 + Math.random() * 22;
+        }
+
+        // Murmullos indistintos tras rejillas / espalda (Fenómeno 4)
+        if (this.whisperNodes) {
+          const wStrength = (GameConfig.psychEnabled && !inDeliberateSilence) ? state.whisperIntensity : 0;
+          // Cadencia silábica irregular
+          const syllable = Math.max(0, Math.sin(time * 7.3) * Math.cos(time * 4.1) + 0.25);
+          this.whisperNodes.masterWhisperGain.gain.setTargetAtTime(wStrength * syllable * 0.11, now, 0.08);
+          this.whisperNodes.panner.pan.setTargetAtTime(state.whisperPan, now, 0.1);
+        }
+
+        // Piano lejano en nicho de memoria (1.800 m)
+        if (state.pianoProximity > 0.05 && now >= this.nextPianoTime) {
+          this.playMemoryPianoNote(state.pianoProximity);
+          this.nextPianoTime = now + 2.1 + Math.random() * 1.1;
+        }
+      }
+    }
+
+    /* ==========================================================================
+       3. MUNDO 3D DEL TÚNEL Y POOLING DE SEGMENTOS (THREE.JS)
+       ========================================================================== */
+    class TunnelWorld {
+      constructor(scene, textureFactory) {
+        this.scene = scene;
+        this.texFactory = textureFactory;
+
+        // Niebla exponencial densa que oculta el horizonte más allá de ~65 m
+        this.fogColorCold = new THREE.Color(0x090d0f);
+        this.fogColorWarm = new THREE.Color(0x28241f);
+        this.fog = new THREE.FogExp2(this.fogColorCold.getHex(), 0.031);
+        this.scene.fog = this.fog;
+        this.scene.background = this.fogColorCold.clone();
+
+        this.sharedMaterials = this.buildSharedMaterials();
+        this.sharedGeometries = this.buildSharedGeometries();
+
+        this.segments = [];
+        this.disabledLights = new Set(); // Índices de luminarias apagadas por Fenómeno 1
+        this.alteredSigns = new Map();   // Índices de carteles alterados por Fenómeno 4
+
+        this.initSegmentPool();
+        this.initLightPool();
+        this.initParticles();
+        this.initSilhouetteActor();
+        this.initMemoryNicheProps();
+        this.initExitPortal();
+      }
+
+      buildSharedMaterials() {
+        const concrete = this.texFactory.createConcreteSet();
+        const wetFloor = this.texFactory.createWetFloorSet();
+
+        return {
+          wall: new THREE.MeshStandardMaterial({
+            map: concrete.map,
+            bumpMap: concrete.bumpMap,
+            bumpScale: 0.045,
+            roughnessMap: concrete.roughnessMap,
+            roughness: 0.88,
+            metalness: 0.06
+          }),
+          floor: new THREE.MeshStandardMaterial({
+            map: wetFloor.map,
+            bumpMap: wetFloor.bumpMap,
+            bumpScale: 0.025,
+            roughnessMap: wetFloor.roughnessMap,
+            roughness: 1.0, // Modulado por roughnessMap (charcos ~0.055, concreto ~0.8)
+            metalness: 0.12
+          }),
+          rib: new THREE.MeshStandardMaterial({
+            color: 0x1a2023,
+            roughness: 0.85,
+            metalness: 0.1
+          }),
+          pipe: new THREE.MeshStandardMaterial({
+            color: 0x262e2c,
+            roughness: 0.52,
+            metalness: 0.68
+          }),
+          cable: new THREE.MeshStandardMaterial({
+            color: 0x101315,
+            roughness: 0.75,
+            metalness: 0.2
+          }),
+          fixtureBody: new THREE.MeshStandardMaterial({
+            color: 0x1d2326,
+            roughness: 0.6,
+            metalness: 0.5
+          }),
+          tubeOn: new THREE.MeshBasicMaterial({
+            color: 0xd4ebe5
+          }),
+          tubeOff: new THREE.MeshStandardMaterial({
+            color: 0x2a3331,
+            roughness: 0.35,
+            metalness: 0.2
+          }),
+          amberBulkhead: new THREE.MeshBasicMaterial({
+            color: 0xe39e38
+          }),
+          lightCone: new THREE.MeshBasicMaterial({
+            color: 0xbcd8d1,
+            transparent: true,
+            opacity: 0.032,
+            depthWrite: false,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending
+          }),
+          amberCone: new THREE.MeshBasicMaterial({
+            color: 0xe39e38,
+            transparent: true,
+            opacity: 0.045,
+            depthWrite: false,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending
+          }),
+          grille: new THREE.MeshStandardMaterial({
+            color: 0x151a1c,
+            roughness: 0.65,
+            metalness: 0.6
+          })
+        };
+      }
+
+      buildSharedGeometries() {
+        // Perfil de cable colgante con catenaria suave
+        const catenaryCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(0, -0.24, -SEGMENT_LENGTH * 0.5),
+          new THREE.Vector3(0, 0, -SEGMENT_LENGTH)
+        ]);
+
+        return {
+          floor: new THREE.PlaneGeometry(6.4, SEGMENT_LENGTH),
+          walkway: new THREE.BoxGeometry(1.55, 0.22, SEGMENT_LENGTH),
+          lowerWall: new THREE.BoxGeometry(0.3, 2.7, SEGMENT_LENGTH),
+          upperChamfer: new THREE.BoxGeometry(0.3, 1.85, SEGMENT_LENGTH),
+          ceiling: new THREE.BoxGeometry(3.8, 0.3, SEGMENT_LENGTH),
+          ribSide: new THREE.BoxGeometry(0.28, 2.7, 0.38),
+          ribTop: new THREE.BoxGeometry(3.8, 0.28, 0.38),
+          pipe: new THREE.CylinderGeometry(0.085, 0.085, SEGMENT_LENGTH, 8),
+          catenary: new THREE.TubeGeometry(catenaryCurve, 12, 0.018, 5, false),
+          fixtureHousing: new THREE.BoxGeometry(0.26, 0.1, 1.8),
+          fixtureTube: new THREE.CylinderGeometry(0.028, 0.028, 1.68, 8),
+          lightCone: new THREE.ConeGeometry(2.8, 4.3, 16, 1, true),
+          signBoard: new THREE.BoxGeometry(1.15, 0.5, 0.04),
+          junctionBox: new THREE.BoxGeometry(0.45, 0.62, 0.22),
+          grilleFrame: new THREE.BoxGeometry(0.08, 0.75, 1.1)
+        };
+      }
+
+      /**
+       * Crea la piscina de segmentos reutilizables del túnel
+       */
+      initSegmentPool() {
+        for (let i = 0; i < POOL_COUNT; i++) {
+          const group = new THREE.Group();
+
+          // Suelo húmedo principal
+          const floor = new THREE.Mesh(this.sharedGeometries.floor, this.sharedMaterials.floor);
+          floor.rotation.x = -Math.PI / 2;
+          floor.position.set(0, 0, -SEGMENT_LENGTH * 0.5);
+          group.add(floor);
+
+          // Acera lateral elevada de mantenimiento (derecha)
+          const walkway = new THREE.Mesh(this.sharedGeometries.walkway, this.sharedMaterials.wall);
+          walkway.position.set(2.42, 0.11, -SEGMENT_LENGTH * 0.5);
+          group.add(walkway);
+
+          // Paredes verticales inferiores
+          const leftWall = new THREE.Mesh(this.sharedGeometries.lowerWall, this.sharedMaterials.wall);
+          leftWall.position.set(-3.2, 1.35, -SEGMENT_LENGTH * 0.5);
+          group.add(leftWall);
+
+          const rightWall = new THREE.Mesh(this.sharedGeometries.lowerWall, this.sharedMaterials.wall);
+          rightWall.position.set(3.2, 1.35, -SEGMENT_LENGTH * 0.5);
+          group.add(rightWall);
+
+          // Bóveda biselada superior (izquierda, derecha y corona)
+          const leftChamfer = new THREE.Mesh(this.sharedGeometries.upperChamfer, this.sharedMaterials.wall);
+          leftChamfer.position.set(-2.52, 3.45, -SEGMENT_LENGTH * 0.5);
+          leftChamfer.rotation.z = -0.58;
+          group.add(leftChamfer);
+
+          const rightChamfer = new THREE.Mesh(this.sharedGeometries.upperChamfer, this.sharedMaterials.wall);
+          rightChamfer.position.set(2.52, 3.45, -SEGMENT_LENGTH * 0.5);
+          rightChamfer.rotation.z = 0.58;
+          group.add(rightChamfer);
+
+          const ceiling = new THREE.Mesh(this.sharedGeometries.ceiling, this.sharedMaterials.wall);
+          ceiling.position.set(0, 4.35, -SEGMENT_LENGTH * 0.5);
+          group.add(ceiling);
+
+          // Arco estructural de refuerzo cada 10 m
+          const ribL = new THREE.Mesh(this.sharedGeometries.ribSide, this.sharedMaterials.rib);
+          ribL.position.set(-2.98, 1.35, -0.2);
+          group.add(ribL);
+
+          const ribR = new THREE.Mesh(this.sharedGeometries.ribSide, this.sharedMaterials.rib);
+          ribR.position.set(2.98, 1.35, -0.2);
+          group.add(ribR);
+
+          const ribT = new THREE.Mesh(this.sharedGeometries.ribTop, this.sharedMaterials.rib);
+          ribT.position.set(0, 4.16, -0.2);
+          group.add(ribT);
+
+          // Tuberías oxidadas longitudinales en pared izquierda
+          const pipe1 = new THREE.Mesh(this.sharedGeometries.pipe, this.sharedMaterials.pipe);
+          pipe1.rotation.x = Math.PI / 2;
+          pipe1.position.set(-2.92, 2.15, -SEGMENT_LENGTH * 0.5);
+          group.add(pipe1);
+
+          const pipe2 = new THREE.Mesh(this.sharedGeometries.pipe, this.sharedMaterials.pipe);
+          pipe2.rotation.x = Math.PI / 2;
+          pipe2.position.set(-2.92, 1.88, -SEGMENT_LENGTH * 0.5);
+          group.add(pipe2);
+
+          // Cable colgante con catenaria en techo derecho
+          const cable = new THREE.Mesh(this.sharedGeometries.catenary, this.sharedMaterials.cable);
+          cable.position.set(1.55, 3.95, 0);
+          group.add(cable);
+
+          // Luminaria fluorescente central
+          const housing = new THREE.Mesh(this.sharedGeometries.fixtureHousing, this.sharedMaterials.fixtureBody);
+          housing.position.set(0, 4.14, -SEGMENT_LENGTH * 0.5);
+          group.add(housing);
+
+          const tube = new THREE.Mesh(this.sharedGeometries.fixtureTube, this.sharedMaterials.tubeOn);
+          tube.rotation.x = Math.PI / 2;
+          tube.position.set(0, 4.08, -SEGMENT_LENGTH * 0.5);
+          group.add(tube);
+
+          const cone = new THREE.Mesh(this.sharedGeometries.lightCone, this.sharedMaterials.lightCone);
+          cone.position.set(0, 2.0, -SEGMENT_LENGTH * 0.5);
+          group.add(cone);
+
+          // Grupo opcional de nicho / señalización cada 50 m
+          const milestoneGroup = new THREE.Group();
+          const signMesh = new THREE.Mesh(
+            this.sharedGeometries.signBoard,
+            new THREE.MeshStandardMaterial({ roughness: 0.5, metalness: 0.3 })
+          );
+          signMesh.position.set(-2.98, 1.55, -2.5);
+          signMesh.rotation.y = Math.PI / 2;
+          milestoneGroup.add(signMesh);
+
+          const jBox = new THREE.Mesh(this.sharedGeometries.junctionBox, this.sharedMaterials.pipe);
+          jBox.position.set(2.96, 1.48, -2.5);
+          milestoneGroup.add(jBox);
+
+          // Luz de emergencia ámbar sobre el cartel
+          const amberBulb = new THREE.Mesh(
+            new THREE.BoxGeometry(0.12, 0.16, 0.28),
+            this.sharedMaterials.amberBulkhead
+          );
+          amberBulb.position.set(-2.98, 2.08, -2.5);
+          milestoneGroup.add(amberBulb);
+
+          const amberCone = new THREE.Mesh(this.sharedGeometries.lightCone, this.sharedMaterials.amberCone);
+          amberCone.scale.set(0.55, 0.65, 0.55);
+          amberCone.position.set(-2.45, 1.0, -2.5);
+          milestoneGroup.add(amberCone);
+
+          group.add(milestoneGroup);
+
+          // Rejilla de ventilación (para segmentos específicos con murmullos)
+          const grilleGroup = new THREE.Group();
+          const grilleMesh = new THREE.Mesh(this.sharedGeometries.grilleFrame, this.sharedMaterials.grille);
+          grilleMesh.position.set(-3.01, 1.35, -5.0);
+          grilleGroup.add(grilleMesh);
+          group.add(grilleGroup);
+
+          this.scene.add(group);
+          this.segments.push({
+            group,
+            tube,
+            cone,
+            milestoneGroup,
+            signMesh,
+            grilleGroup,
+            segIndex: -999,
+            hasLight: true,
+            flickerMode: 'steady',
+            flickerPhase: Math.random() * 100
+          });
+        }
+      }
+
+      /**
+       * Piscina de luces dinámicas de Three.js (6 fluorescentes frías + 2 ámbar cálidas)
+       * para iluminar reflejos especulares en charcos manteniendo 60 FPS estables.
+       */
+      initLightPool() {
+        this.coldLights = [];
+        for (let i = 0; i < 6; i++) {
+          const light = new THREE.PointLight(0xcbe6df, 1.35, 22, 1.7);
+          this.scene.add(light);
+          this.coldLights.push(light);
+        }
+
+        this.warmLights = [];
+        for (let i = 0; i < 2; i++) {
+          const light = new THREE.PointLight(0xe59d38, 1.15, 16, 1.8);
+          this.scene.add(light);
+          this.warmLights.push(light);
+        }
+      }
+
+      /**
+       * Motas de polvo en suspensión y gotas de agua cayendo
+       */
+      initParticles() {
+        const tex = this.texFactory.createParticleTexture();
+        const dustCount = GameConfig.highQuality ? 420 : 200;
+        const dustGeo = new THREE.BufferGeometry();
+        const dustPos = new Float32Array(dustCount * 3);
+
+        for (let i = 0; i < dustCount; i++) {
+          dustPos[i * 3] = (Math.random() - 0.5) * 5.6;
+          dustPos[i * 3 + 1] = 0.2 + Math.random() * 3.8;
+          dustPos[i * 3 + 2] = (Math.random() - 0.5) * 70;
+        }
+        dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+
+        const dustMat = new THREE.PointsMaterial({
+          color: 0xcfe2dd,
+          map: tex,
+          size: 0.055,
+          transparent: true,
+          opacity: 0.34,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        });
+
+        this.dustPoints = new THREE.Points(dustGeo, dustMat);
+        this.scene.add(this.dustPoints);
+
+        // Gotas de agua cayendo periódicamente hacia los charcos
+        const dropCount = GameConfig.highQuality ? 55 : 28;
+        const dropGeo = new THREE.BufferGeometry();
+        const dropPos = new Float32Array(dropCount * 3);
+        this.dropVelocities = new Float32Array(dropCount);
+        for (let i = 0; i < dropCount; i++) {
+          dropPos[i * 3] = (Math.random() - 0.5) * 5.0;
+          dropPos[i * 3 + 1] = Math.random() * 4.1;
+          dropPos[i * 3 + 2] = -Math.random() * 55;
+          this.dropVelocities[i] = 4.5 + Math.random() * 2.5;
+        }
+        dropGeo.setAttribute('position', new THREE.BufferAttribute(dropPos, 3));
+        const dropMat = new THREE.PointsMaterial({
+          color: 0xdbece8,
+          map: tex,
+          size: 0.04,
+          transparent: true,
+          opacity: 0.55,
+          depthWrite: false
+        });
+        this.dropPoints = new THREE.Points(dropGeo, dropMat);
+        this.scene.add(this.dropPoints);
+      }
+
+      /**
+       * Fenómeno 3: Silueta humana ambigua y pareidólica en la penumbra (Acto II)
+       */
+      initSilhouetteActor() {
+        this.silhouetteGroup = new THREE.Group();
+        const shadowMat = new THREE.MeshStandardMaterial({
+          color: 0x090b0d,
+          roughness: 0.95,
+          metalness: 0.0
+        });
+
+        // Torso abrigo largo
+        const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.25, 1.18, 10), shadowMat);
+        torso.position.y = 0.88;
+        this.silhouetteGroup.add(torso);
+
+        // Cabeza ligeramente inclinada
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.135, 10, 10), shadowMat);
+        head.position.set(0.02, 1.62, 0);
+        this.silhouetteGroup.add(head);
+
+        this.silhouetteGroup.visible = false;
+        this.scene.add(this.silhouetteGroup);
+
+        // Silla metálica vacía que queda en su lugar tras el parpadeo
+        this.decoyChairGroup = new THREE.Group();
+        const chairMat = new THREE.MeshStandardMaterial({ color: 0x1e2527, roughness: 0.6, metalness: 0.5 });
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.42), chairMat);
+        seat.position.y = 0.45;
+        const back = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.48, 0.04), chairMat);
+        back.position.set(0, 0.69, -0.19);
+        this.decoyChairGroup.add(seat, back);
+        [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]].forEach(([lx, lz]) => {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 6), chairMat);
+          leg.position.set(lx, 0.225, lz);
+          this.decoyChairGroup.add(leg);
+        });
+        this.decoyChairGroup.visible = false;
+        this.scene.add(this.decoyChairGroup);
+      }
+
+      /**
+       * Fenómeno 5 (Acto III: 1.450 m – 1.900 m): Objetos cotidianos cargados de memoria
+       * iluminados con luz ámbar cálida doméstica.
+       */
+      initMemoryNicheProps() {
+        const woodMat = new THREE.MeshStandardMaterial({ color: 0x3b2416, roughness: 0.72 });
+        const shadeMat = new THREE.MeshStandardMaterial({
+          color: 0xffd28e,
+          emissive: 0xd98a2b,
+          emissiveIntensity: 0.85,
+          roughness: 0.6
+        });
+
+        // 1. Memoria a 1.500 m: Silla de madera y lámpara doméstica encendida
+        this.mem1Group = new THREE.Group();
+        const mSeat = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.05, 0.46), woodMat);
+        mSeat.position.set(-2.1, 0.46, -1502.5);
+        const mBack = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.55, 0.05), woodMat);
+        mBack.position.set(-2.1, 0.74, -1502.72);
+        const table = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.58, 12), woodMat);
+        table.position.set(-2.15, 0.29, -1501.75);
+        const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 0.22, 10), woodMat);
+        lampBase.position.set(-2.15, 0.69, -1501.75);
+        const lampShade = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.19, 0.24, 12, 1, true), shadeMat);
+        lampShade.position.set(-2.15, 0.88, -1501.75);
+        this.mem1Group.add(mSeat, mBack, table, lampBase, lampShade);
+        this.scene.add(this.mem1Group);
+
+        // 2. Memoria a 1.650 m: Marco luminoso de ventana con lluvia proyectada
+        this.mem2Group = new THREE.Group();
+        const winTex = this.texFactory.createMemoryWindowTexture();
+        const winMat = new THREE.MeshBasicMaterial({ map: winTex });
+        const winMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.05, 1.55), winMat);
+        winMesh.position.set(-3.02, 1.72, -1652.5);
+        winMesh.rotation.y = Math.PI / 2;
+        this.mem2Group.add(winMesh);
+        this.scene.add(this.mem2Group);
+
+        // 3. Memoria a 1.800 m: Mesa con vieja radio de casete
+        this.mem3Group = new THREE.Group();
+        const stool = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.52, 0.44), woodMat);
+        stool.position.set(-2.2, 0.26, -1802.5);
+        const radioBody = new THREE.Mesh(
+          new THREE.BoxGeometry(0.36, 0.18, 0.14),
+          new THREE.MeshStandardMaterial({ color: 0x26211d, roughness: 0.5, metalness: 0.35 })
+        );
+        radioBody.position.set(-2.2, 0.61, -1802.5);
+        radioBody.rotation.y = 0.35;
+        const dialGlow = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.18, 0.045),
+          new THREE.MeshBasicMaterial({ color: 0xffb957 })
+        );
+        dialGlow.position.set(-2.13, 0.62, -1802.45);
+        dialGlow.rotation.y = 0.35;
+        this.mem3Group.add(stool, radioBody, dialGlow);
+        this.scene.add(this.mem3Group);
+      }
+
+      /**
+       * Umbral final en los 2.000 metros (luz cálida serena de madrugada)
+       */
+      initExitPortal() {
+        this.exitGroup = new THREE.Group();
+        this.exitGroup.position.set(0, 0, -TUNNEL_LENGTH);
+
+        const portalPlane = new THREE.Mesh(
+          new THREE.PlaneGeometry(6.4, 4.6),
+          new THREE.MeshBasicMaterial({ color: 0xebe4d8 })
+        );
+        portalPlane.position.set(0, 2.3, -1.5);
+        this.exitGroup.add(portalPlane);
+
+        const exitSign = new THREE.Mesh(
+          new THREE.BoxGeometry(1.8, 0.58, 0.06),
+          new THREE.MeshBasicMaterial({
+            map: this.texFactory.createSignTexture('SALIDA →', 'FIN DEL TÚNEL · 2000 M', 'exit')
+          })
+        );
+        exitSign.position.set(0, 3.35, 0.2);
+        this.exitGroup.add(exitSign);
+
+        const exitLight = new THREE.PointLight(0xf5ead6, 2.4, 34, 1.4);
+        exitLight.position.set(0, 2.6, 2.0);
+        this.exitGroup.add(exitLight);
+
+        this.scene.add(this.exitGroup);
+      }
+
+      /**
+       * Determina la configuración determinista de cada segmento según su índice (0..200)
+       */
+      configureSegment(seg, index) {
+        seg.segIndex = index;
+        seg.group.position.z = -index * SEGMENT_LENGTH;
+        seg.group.visible = index >= 0 && index <= (TUNNEL_LENGTH / SEGMENT_LENGTH);
+
+        if (!seg.group.visible) return;
+
+        // No todas las luminarias existen o funcionan: crea ritmo de luces y penumbra
+        const pattern = index % 4;
+        let hasLight = (pattern === 0 || pattern === 2);
+        if (index === 13 || index === 28 || index === 46 || index === 69) hasLight = true; // Para Fenómeno 1
+        if (index === 76 || index === 114) hasLight = true; // Sobre siluetas en Fenómeno 3
+        if (index >= 192) hasLight = false; // El tramo final cede paso a la luz natural de salida
+
+        if (this.disabledLights.has(index)) {
+          hasLight = false;
+        }
+
+        seg.hasLight = hasLight;
+        seg.tube.material = hasLight ? this.sharedMaterials.tubeOn : this.sharedMaterials.tubeOff;
+        seg.cone.visible = hasLight;
+
+        // Comportamiento de parpadeo según el acto narrativo
+        if (!hasLight) {
+          seg.flickerMode = 'off';
+        } else if (index === 76 || index === 114 || (index > 65 && index < 140 && index % 6 === 0)) {
+          seg.flickerMode = 'unstable';
+        } else if (index % 8 === 0 && index < 185) {
+          seg.flickerMode = 'subtle';
+        } else {
+          seg.flickerMode = 'steady';
+        }
+
+        // Hitos cada 50 m (index múltiplo de 5)
+        const isMilestone = (index > 0 && index % 5 === 0 && index <= 200);
+        seg.milestoneGroup.visible = isMilestone;
+        if (isMilestone) {
+          const meters = index * SEGMENT_LENGTH;
+          if (this.alteredSigns.has(index)) {
+            const alt = this.alteredSigns.get(index);
+            seg.signMesh.material.map = this.texFactory.createSignTexture(alt.main, alt.sub, 'altered');
+          } else {
+            const label = `${String(meters).padStart(4, '0')} m`;
+            seg.signMesh.material.map = this.texFactory.createSignTexture(label, 'DISTANCIA RECORRIDA', 'standard');
+          }
+          seg.signMesh.material.needsUpdate = true;
+        }
+
+        // Rejilla de ventilación cada 30 m (especialmente notable en Acto II)
+        seg.grilleGroup.visible = (index > 0 && index % 3 === 0);
+      }
+
+      /**
+       * Actualiza el pool de segmentos, luces dinámicas y partículas en cada fotograma
+       */
+      update(playerPos, time, dt) {
+        const currentSegIndex = Math.floor(Math.max(0, -playerPos.z) / SEGMENT_LENGTH);
+        const startIdx = Math.max(0, currentSegIndex - 4);
+
+        for (let i = 0; i < POOL_COUNT; i++) {
+          const targetIdx = startIdx + i;
+          const seg = this.segments[i];
+          if (seg.segIndex !== targetIdx) {
+            this.configureSegment(seg, targetIdx);
+          }
+        }
+
+        // Evaluar parpadeo instantáneo y asignar las 6 PointLights frías más cercanas
+        const activeCandidates = [];
+        let nearestLightInfluence = 0;
+        let nearestLightFlicker = 0;
+
+        for (const seg of this.segments) {
+          if (!seg.group.visible || !seg.hasLight) continue;
+          const lightZ = seg.group.position.z - SEGMENT_LENGTH * 0.5;
+          const dist = Math.abs(playerPos.z - lightZ);
+
+          let intensity = 1.0;
+          let flickerAmount = 0.0;
+
+          if (seg.flickerMode === 'subtle') {
+            const wave = Math.sin(time * 23 + seg.flickerPhase) * Math.sin(time * 7.1);
+            if (wave > 0.86) {
+              intensity = 0.35;
+              flickerAmount = 0.7;
+            }
+          } else if (seg.flickerMode === 'unstable') {
+            const n = Math.sin(time * 37 + seg.flickerPhase) + Math.cos(time * 19.3);
+            if (n > 1.25) {
+              intensity = 0.08;
+              flickerAmount = 1.0;
+            } else if (n > 0.75) {
+              intensity = 0.55;
+              flickerAmount = 0.5;
+            }
+          }
+
+          seg.cone.material.opacity = 0.032 * intensity;
+
+          if (dist < 18) {
+            const inf = Math.max(0, 1 - dist / 18) * intensity;
+            if (inf > nearestLightInfluence) {
+              nearestLightInfluence = inf;
+              nearestLightFlicker = flickerAmount;
+            }
+          }
+
+          if (dist < 62) {
+            activeCandidates.push({ z: lightZ, dist, intensity });
+          }
+        }
+
+        activeCandidates.sort((a, b) => a.dist - b.dist);
+        for (let i = 0; i < this.coldLights.length; i++) {
+          const pLight = this.coldLights[i];
+          const cand = activeCandidates[i];
+          if (cand) {
+            pLight.position.set(0, 3.85, cand.z);
+            pLight.intensity = 1.45 * cand.intensity;
+          } else {
+            pLight.intensity = 0;
+          }
+        }
+
+        // Asignar luces ámbar cálidas a los nichos de hito o a los objetos de memoria del Acto III
+        const distanceMeters = Math.max(0, -playerPos.z);
+        if (distanceMeters > 1420 && distanceMeters < 1880) {
+          // Iluminar los nichos de memoria (1500m, 1650m, 1800m)
+          const memPositions = [-1502.0, -1652.5, -1802.5];
+          memPositions.sort((a, b) => Math.abs(playerPos.z - a) - Math.abs(playerPos.z - b));
+          for (let i = 0; i < this.warmLights.length; i++) {
+            this.warmLights[i].position.set(-1.95, 1.55, memPositions[i]);
+            this.warmLights[i].color.setHex(0xffb45c);
+            this.warmLights[i].intensity = 1.65;
+          }
+        } else {
+          // Iluminación ámbar tenue de emergencia cada 50 m
+          const nearest50 = Math.round(distanceMeters / 50) * 50;
+          const second50 = nearest50 + 50;
+          [nearest50, second50].forEach((m, idx) => {
+            if (m > 0 && m < 1950 && this.warmLights[idx]) {
+              this.warmLights[idx].position.set(-2.55, 2.0, -(m + 2.5));
+              this.warmLights[idx].color.setHex(0xd99a36);
+              this.warmLights[idx].intensity = 0.72;
+            }
+          });
+        }
+
+        // Transición atmosférica progresiva en los últimos 100 metros (1.900 m -> 2.000 m)
+        const endRatio = Math.max(0, Math.min(1, (distanceMeters - 1900) / 100));
+        this.fog.color.copy(this.fogColorCold).lerp(this.fogColorWarm, endRatio);
+        this.scene.background.copy(this.fog.color);
+        this.fog.density = 0.031 * (1 - endRatio * 0.42);
+
+        // Actualizar motas de polvo alrededor del jugador
+        const dustArr = this.dustPoints.geometry.attributes.position.array;
+        for (let i = 0; i < dustArr.length; i += 3) {
+          dustArr[i + 1] += Math.sin(time * 0.6 + i) * 0.08 * dt;
+          if (dustArr[i + 2] > playerPos.z + 10) {
+            dustArr[i + 2] = playerPos.z - 55 - Math.random() * 15;
+          } else if (dustArr[i + 2] < playerPos.z - 65) {
+            dustArr[i + 2] = playerPos.z + 8;
+          }
+        }
+        this.dustPoints.geometry.attributes.position.needsUpdate = true;
+
+        // Actualizar gotas de agua cayendo
+        const dropArr = this.dropPoints.geometry.attributes.position.array;
+        for (let i = 0; i < dropArr.length; i += 3) {
+          const vIdx = i / 3;
+          dropArr[i + 1] -= this.dropVelocities[vIdx] * dt;
+          if (dropArr[i + 1] <= 0.02) {
+            dropArr[i + 1] = 4.05;
+            dropArr[i + 2] = playerPos.z - 3 - Math.random() * 48;
+          }
+        }
+        this.dropPoints.geometry.attributes.position.needsUpdate = true;
+
+        return { nearestLightInfluence, nearestLightFlicker };
+      }
+    }
+
+    /* ==========================================================================
+       4. DIRECTOR PSICOLÓGICO Y PROGRESIÓN DE 3 ACTOS (5 FENÓMENOS CLAVE)
+       ========================================================================== */
+    class PsychologyDirector {
+      constructor(world, audio, captionEl) {
+        this.world = world;
+        this.audio = audio;
+        this.captionEl = captionEl;
+        this.captionTimeout = null;
+
+        this.reset();
+      }
+
+      reset() {
+        this.world.disabledLights.clear();
+        this.world.alteredSigns.clear();
+        // Forzar refresco de segmentos
+        this.world.segments.forEach(s => { s.segIndex = -999; });
+
+        // Fenómeno 1: Luminarias que se apagan al mirar hacia atrás
+        this.rearLightTraps = [
+          { segIndex: 13, armed: false, triggered: false },
+          { segIndex: 28, armed: false, triggered: false },
+          { segIndex: 46, armed: false, triggered: false },
+          { segIndex: 69, armed: false, triggered: false }
+        ];
+
+        // Fenómeno 2: Pasos desfasados
+        this.pendingTrailingStep = false;
+        this.trailingStepTimer = 0;
+        this.shownCaptionFlags = new Set();
+
+        // Fenómeno 3: Siluetas ambiguas en la penumbra (765m y 1145m)
+        this.silhouettes = [
+          { z: -765, x: 1.38, state: 'pending' },
+          { z: -1145, x: -1.45, state: 'pending' }
+        ];
+
+        // Fenómeno 4: Señalización inestable (950m y 1250m)
+        this.signTrap950 = 'pending';
+        this.signTrap1250 = 'pending';
+      }
+
+      showBriefThought(text, duration = 4200) {
+        if (this.captionTimeout) clearTimeout(this.captionTimeout);
+        this.captionEl.textContent = text;
+        this.captionEl.classList.add('visible');
+        this.captionTimeout = setTimeout(() => {
+          this.captionEl.classList.remove('visible');
+        }, duration);
+      }
+
+      onPlayerStep(distance, isBrisk) {
+        // Fenómeno 2 (Acto I: 330 m – 590 m): Eco de pasos desfasados medio compás detrás
+        if (distance >= 330 && distance <= 590 && GameConfig.psychEnabled) {
+          this.pendingTrailingStep = true;
+          this.trailingStepTimer = 0.40;
+          setTimeout(() => {
+            if (this.pendingTrailingStep) {
+              this.audio.playFootstep(isBrisk, true, (Math.random() - 0.5) * 0.35);
+            }
+          }, 340);
+        }
+      }
+
+      update(dt, playerPos, yaw, isMoving) {
+        const distance = Math.max(0, -playerPos.z);
+        // Vector hacia donde mira el jugador en el plano XZ
+        const lookX = -Math.sin(yaw);
+        const lookZ = -Math.cos(yaw);
+
+        // Pensamientos breves contextuales (muy espaciados para preservar el silencio)
+        if (distance > 18 && !this.shownCaptionFlags.has('start')) {
+          this.shownCaptionFlags.add('start');
+          this.showBriefThought('Dos kilómetros hasta el otro lado. Solo hay que seguir las marcas.');
+        } else if (distance > 610 && !this.shownCaptionFlags.has('act2')) {
+          this.shownCaptionFlags.add('act2');
+          this.showBriefThought('El aire pesa más aquí dentro. Como si el túnel respirara despacio.');
+        } else if (distance > 1495 && !this.shownCaptionFlags.has('act3')) {
+          this.shownCaptionFlags.add('act3');
+          this.showBriefThought('Esa luz cálida... no debería haber nada así aquí abajo.');
+        }
+
+        // ----------------------------------------------------------------------
+        // FENÓMENO 1: La luz que desaparece al mirar atrás
+        // ----------------------------------------------------------------------
+        for (const trap of this.rearLightTraps) {
+          if (trap.triggered) continue;
+          const lightZ = -(trap.segIndex * SEGMENT_LENGTH + SEGMENT_LENGTH * 0.5);
+          // Cuando el jugador rebasa la luz al menos 5.5 metros mirando al frente
+          if (!trap.armed && playerPos.z < lightZ - 5.5 && lookZ < -0.4) {
+            trap.armed = true;
+          }
+          // Si gira la cámara hacia atrás (lookZ > 0.58)
+          if (trap.armed && lookZ > 0.58) {
+            trap.triggered = true;
+            this.world.disabledLights.add(trap.segIndex);
+            const seg = this.world.segments.find(s => s.segIndex === trap.segIndex);
+            if (seg) {
+              seg.hasLight = false;
+              seg.flickerMode = 'off';
+              seg.tube.material = this.world.sharedMaterials.tubeOff;
+              seg.cone.visible = false;
+            }
+            this.audio.playLightSnap((Math.random() - 0.5) * 0.4);
+          }
+        }
+
+        // ----------------------------------------------------------------------
+        // FENÓMENO 2: Un último paso detrás cuando el jugador se detiene en seco
+        // ----------------------------------------------------------------------
+        if (!isMoving && this.pendingTrailingStep) {
+          this.trailingStepTimer -= dt;
+          if (this.trailingStepTimer <= 0) {
+            this.pendingTrailingStep = false;
+            this.audio.playFootstep(false, true, 0.12);
+          }
+        }
+
+        // ----------------------------------------------------------------------
+        // FENÓMENO 3: La silueta ambigua en la penumbra (Acto II)
+        // ----------------------------------------------------------------------
+        let activeSil = null;
+        for (const sil of this.silhouettes) {
+          const dz = sil.z - playerPos.z; // negativo cuando está delante
+          if (dz < -10 && dz > -75) {
+            activeSil = sil;
+            break;
+          }
+        }
+
+        if (activeSil) {
+          const distToSil = Math.abs(activeSil.z - playerPos.z);
+          if (activeSil.state === 'pending' && distToSil < 58 && distToSil > 26) {
+            activeSil.state = 'visible';
+            this.world.silhouetteGroup.position.set(activeSil.x, 0, activeSil.z);
+            this.world.silhouetteGroup.visible = true;
+            this.world.decoyChairGroup.visible = false;
+          } else if (activeSil.state === 'visible') {
+            // Desaparece al acercarse (< 21 m) o al apartar la mirada y volver
+            const lookingForward = lookZ < -0.45;
+            if (distToSil < 21 || !lookingForward) {
+              activeSil.state = 'vanished';
+              this.world.silhouetteGroup.visible = false;
+              this.world.decoyChairGroup.position.set(activeSil.x, 0, activeSil.z);
+              this.world.decoyChairGroup.visible = true;
+              this.audio.playLightSnap(0.15);
+            }
+          }
+        } else {
+          this.world.silhouetteGroup.visible = false;
+        }
+
+        // ----------------------------------------------------------------------
+        // FENÓMENO 4: Señalización inestable, elasticidad espacial y murmullos
+        // ----------------------------------------------------------------------
+        // Cartel de 950m cambia a 0910m cuando se vuelve a mirar atrás
+        if (this.signTrap950 === 'pending' && distance > 956 && lookZ < -0.3) {
+          this.signTrap950 = 'armed';
+        } else if (this.signTrap950 === 'armed' && lookZ > 0.55) {
+          this.signTrap950 = 'triggered';
+          this.world.alteredSigns.set(95, { main: '0910 m', sub: '¿YA PASASTE POR AQUÍ?' });
+          const seg95 = this.world.segments.find(s => s.segIndex === 95);
+          if (seg95) this.world.configureSegment(seg95, 95);
+        }
+
+        // Cartel de 1250m cambia su leyenda
+        if (this.signTrap1250 === 'pending' && distance > 1255 && lookZ < -0.3) {
+          this.signTrap1250 = 'armed';
+        } else if (this.signTrap1250 === 'armed' && lookZ > 0.55) {
+          this.signTrap1250 = 'triggered';
+          this.world.alteredSigns.set(125, { main: 'SIGUE', sub: 'NO ES REAL · RESPIRA' });
+          const seg125 = this.world.segments.find(s => s.segIndex === 125);
+          if (seg125) this.world.configureSegment(seg125, 125);
+        }
+
+        // Elasticidad espacial sutil entre 1.040 m y 1.240 m
+        let speedMultiplier = 1.0;
+        let fovOffset = 0.0;
+        if (distance > 1040 && distance < 1240) {
+          const wave = Math.sin(((distance - 1040) / 200) * Math.PI);
+          speedMultiplier = 1.0 - wave * 0.24;
+          fovOffset = wave * 4.8;
+        }
+
+        // Murmullos indistintos detrás de la rejilla de ventilación en 1.110 m
+        let whisperIntensity = 0;
+        let whisperPan = 0;
+        const grilleZ = -1115;
+        const distToGrille = Math.hypot(playerPos.x - (-3.0), playerPos.z - grilleZ);
+        if (distToGrille < 24) {
+          const toGrilleX = (-3.0 - playerPos.x) / distToGrille;
+          const toGrilleZ = (grilleZ - playerPos.z) / distToGrille;
+          const alignment = lookX * toGrilleX + lookZ * toGrilleZ;
+          // Si el jugador mira directamente hacia la rejilla, el murmullo se desvanece
+          if (alignment < 0.72) {
+            whisperIntensity = (1 - distToGrille / 24) * (1 - Math.max(0, alignment));
+            // Producto cruzado 2D para paneo estéreo relativo a la mirada
+            const rightX = Math.cos(yaw);
+            const rightZ = -Math.sin(yaw);
+            whisperPan = Math.max(-0.9, Math.min(0.9, rightX * toGrilleX + rightZ * toGrilleZ));
+          }
+        }
+
+        // Proximidad al piano lejano del nicho de 1.800 m (Fenómeno 5)
+        const distToRadio = Math.abs(playerPos.z - (-1802.5));
+        const pianoProximity = distToRadio < 28 ? Math.max(0, 1 - distToRadio / 28) : 0;
+
+        return {
+          speedMultiplier,
+          fovOffset,
+          whisperIntensity,
+          whisperPan,
+          pianoProximity
+        };
+      }
+    }
+
+    /* ==========================================================================
+       5. APLICACIÓN PRINCIPAL, CÁMARA EN PRIMERA PERSONA Y CONTROLES
+       ========================================================================== */
+    class EchoesApp {
+      constructor() {
+        this.state = 'MENU'; // MENU, PLAYING, PAUSED, ENDING
+        this.elapsedPlayTime = 0;
+
+        this.initThree();
+        this.texFactory = new TextureFactory();
+        this.audio = new SpatialAudioEngine();
+        this.world = new TunnelWorld(this.scene, this.texFactory);
+        this.director = new PsychologyDirector(
+          this.world,
+          this.audio,
+          document.getElementById('thought-caption')
+        );
+
+        // Estado del jugador
+        this.player = {
+          pos: new THREE.Vector3(0, 0, -2),
+          vel: new THREE.Vector3(),
+          yaw: 0,
+          pitch: 0,
+          eyeHeight: 1.68,
+          bobPhase: 0,
+          stepAccum: 0,
+          isFocusing: false,
+          hasMovedOnce: false
+        };
+
+        this.keys = {};
+        this.isPointerLocked = false;
+        this.isDraggingLook = false;
+        this.lastPointerX = 0;
+        this.lastPointerY = 0;
+        this.touchWalking = false;
+
+        this.clock = new THREE.Clock();
+        this.bindUI();
+        this.bindInputs();
+
+        // Revelar escena inicial suavemente
+        requestAnimationFrame(() => {
+          document.getElementById('fade-curtain').classList.add('clear');
+        });
+
+        this.animate = this.animate.bind(this);
+        requestAnimationFrame(this.animate);
+      }
+
+      initThree() {
+        const container = document.getElementById('canvas-container');
+        this.scene = new THREE.Scene();
+
+        this.baseFov = 64;
+        this.camera = new THREE.PerspectiveCamera(
+          this.baseFov,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          135
+        );
+        this.camera.rotation.order = 'YXZ';
+
+        this.renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          powerPreference: 'high-performance'
+        });
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 1.08;
+
+        container.appendChild(this.renderer.domElement);
+
+        window.addEventListener('resize', () => {
+          this.camera.aspect = window.innerWidth / window.innerHeight;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+      }
+
+      bindUI() {
+        const mainMenu = document.getElementById('main-menu');
+        const pauseMenu = document.getElementById('pause-menu');
+        const settingsMenu = document.getElementById('settings-menu');
+        const creditsMenu = document.getElementById('credits-menu');
+        const endingScreen = document.getElementById('ending-screen');
+        const hud = document.getElementById('hud');
+
+        let settingsReturnTarget = mainMenu;
+
+        const startGame = () => {
+          this.audio.init();
+          mainMenu.classList.add('hidden');
+          pauseMenu.classList.add('hidden');
+          endingScreen.classList.add('hidden');
+          hud.classList.add('visible');
+          this.state = 'PLAYING';
+          this.requestMouseLock();
+        };
+
+        document.getElementById('btn-start').addEventListener('click', startGame);
+
+        document.getElementById('btn-resume').addEventListener('click', () => {
+          pauseMenu.classList.add('hidden');
+          hud.classList.add('visible');
+          this.state = 'PLAYING';
+          this.requestMouseLock();
+        });
+
+        document.getElementById('hud-pause-btn').addEventListener('click', () => {
+          if (this.state === 'PLAYING') this.pauseGame();
+        });
+
+        document.getElementById('btn-restart').addEventListener('click', () => {
+          this.resetSession();
+          startGame();
+        });
+
+        document.getElementById('btn-play-again').addEventListener('click', () => {
+          const curtain = document.getElementById('fade-curtain');
+          curtain.classList.remove('warm-end');
+          curtain.classList.add('clear');
+          this.resetSession();
+          startGame();
+        });
+
+        document.getElementById('btn-ending-menu').addEventListener('click', () => {
+          const curtain = document.getElementById('fade-curtain');
+          curtain.classList.remove('warm-end');
+          curtain.classList.add('clear');
+          this.resetSession();
+          endingScreen.classList.add('hidden');
+          mainMenu.classList.remove('hidden');
+          this.state = 'MENU';
+        });
+
+        // Configuración
+        document.getElementById('btn-settings').addEventListener('click', () => {
+          settingsReturnTarget = mainMenu;
+          mainMenu.classList.add('hidden');
+          settingsMenu.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-pause-settings').addEventListener('click', () => {
+          settingsReturnTarget = pauseMenu;
+          pauseMenu.classList.add('hidden');
+          settingsMenu.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-close-settings').addEventListener('click', () => {
+          settingsMenu.classList.add('hidden');
+          settingsReturnTarget.classList.remove('hidden');
+        });
+
+        // Créditos
+        document.getElementById('btn-credits').addEventListener('click', () => {
+          mainMenu.classList.add('hidden');
+          creditsMenu.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-close-credits').addEventListener('click', () => {
+          creditsMenu.classList.add('hidden');
+          mainMenu.classList.remove('hidden');
+        });
+
+        // Sliders e interruptores
+        const bindSlider = (id, valId, suffix, onChange) => {
+          const el = document.getElementById(id);
+          const valEl = document.getElementById(valId);
+          el.addEventListener('input', () => {
+            const v = Number(el.value);
+            valEl.textContent = suffix === 'x' ? `${(v / 100).toFixed(1)}x` : `${v}%`;
+            onChange(v);
+            this.audio.syncVolumes();
+          });
+        };
+
+        bindSlider('opt-master-vol', 'val-master-vol', '%', v => { GameConfig.masterVolume = v / 100; });
+        bindSlider('opt-ambient-vol', 'val-ambient-vol', '%', v => { GameConfig.ambientVolume = v / 100; });
+        bindSlider('opt-psych-vol', 'val-psych-vol', '%', v => { GameConfig.psychVolume = v / 100; });
+        bindSlider('opt-sensitivity', 'val-sensitivity', 'x', v => { GameConfig.mouseSensitivity = v / 100; });
+
+        const psychBtn = document.getElementById('btn-toggle-psych');
+        psychBtn.addEventListener('click', () => {
+          GameConfig.psychEnabled = !GameConfig.psychEnabled;
+          psychBtn.textContent = GameConfig.psychEnabled ? 'Activados' : 'Silenciados';
+          psychBtn.classList.toggle('active', GameConfig.psychEnabled);
+          this.audio.syncVolumes();
+        });
+
+        const qualBtn = document.getElementById('btn-toggle-quality');
+        qualBtn.addEventListener('click', () => {
+          GameConfig.highQuality = !GameConfig.highQuality;
+          qualBtn.textContent = GameConfig.highQuality ? 'Alta' : 'Media';
+          qualBtn.classList.toggle('active', GameConfig.highQuality);
+          this.renderer.setPixelRatio(
+            GameConfig.highQuality ? Math.min(window.devicePixelRatio || 1, 1.5) : 1.0
+          );
+        });
+      }
+
+      bindInputs() {
+        window.addEventListener('keydown', (e) => {
+          this.keys[e.code] = true;
+
+          if (e.code === 'KeyP' || (e.code === 'Escape' && this.state === 'PLAYING')) {
+            if (this.state === 'PLAYING') this.pauseGame();
+          }
+          if (e.code === 'KeyF') {
+            this.player.isFocusing = true;
+            document.getElementById('reticle').classList.add('focusing');
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          this.keys[e.code] = false;
+          if (e.code === 'KeyF') {
+            this.player.isFocusing = false;
+            document.getElementById('reticle').classList.remove('focusing');
+          }
+        });
+
+        // Pointer Lock + respaldo de arrastrar ratón para compatibilidad universal
+        const canvas = this.renderer.domElement;
+
+        document.addEventListener('pointerlockchange', () => {
+          this.isPointerLocked = (document.pointerLockElement === canvas);
+          const pHint = document.getElementById('pointer-hint');
+          if (this.state === 'PLAYING') {
+            pHint.classList.toggle('visible', !this.isPointerLocked);
+          } else {
+            pHint.classList.remove('visible');
+          }
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+          if (this.state !== 'PLAYING') return;
+          if (e.button === 2) {
+            this.player.isFocusing = true;
+            document.getElementById('reticle').classList.add('focusing');
+            return;
+          }
+          if (!this.isPointerLocked) {
+            this.requestMouseLock();
+            this.isDraggingLook = true;
+            this.lastPointerX = e.clientX;
+            this.lastPointerY = e.clientY;
+          }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+          if (e.button === 2) {
+            this.player.isFocusing = false;
+            document.getElementById('reticle').classList.remove('focusing');
+          }
+          this.isDraggingLook = false;
+        });
+
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        window.addEventListener('mousemove', (e) => {
+          if (this.state !== 'PLAYING') return;
+          const sens = 0.0021 * GameConfig.mouseSensitivity;
+
+          if (this.isPointerLocked) {
+            this.player.yaw -= e.movementX * sens;
+            this.player.pitch -= e.movementY * sens;
+          } else if (this.isDraggingLook) {
+            const dx = e.clientX - this.lastPointerX;
+            const dy = e.clientY - this.lastPointerY;
+            this.lastPointerX = e.clientX;
+            this.lastPointerY = e.clientY;
+            this.player.yaw -= dx * sens * 1.3;
+            this.player.pitch -= dy * sens * 1.3;
+          }
+
+          const maxPitch = Math.PI * 0.42;
+          this.player.pitch = Math.max(-maxPitch, Math.min(maxPitch, this.player.pitch));
+        });
+
+        // Soporte táctil para pantallas móviles/tablets
+        const walkBtn = document.getElementById('touch-walk-btn');
+        walkBtn.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          this.touchWalking = true;
+        }, { passive: false });
+        walkBtn.addEventListener('touchend', () => {
+          this.touchWalking = false;
+        });
+
+        let touchId = null;
+        let lastTX = 0;
+        let lastTY = 0;
+        canvas.addEventListener('touchstart', (e) => {
+          if (this.state !== 'PLAYING') return;
+          const t = e.changedTouches[0];
+          touchId = t.identifier;
+          lastTX = t.clientX;
+          lastTY = t.clientY;
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', (e) => {
+          if (this.state !== 'PLAYING') return;
+          for (const t of e.changedTouches) {
+            if (t.identifier === touchId) {
+              const dx = t.clientX - lastTX;
+              const dy = t.clientY - lastTY;
+              lastTX = t.clientX;
+              lastTY = t.clientY;
+              const sens = 0.0032 * GameConfig.mouseSensitivity;
+              this.player.yaw -= dx * sens;
+              this.player.pitch = Math.max(-1.2, Math.min(1.2, this.player.pitch - dy * sens));
+            }
+          }
+        }, { passive: true });
+      }
+
+      requestMouseLock() {
+        try {
+          const canvas = this.renderer.domElement;
+          if (canvas.requestPointerLock) {
+            const promise = canvas.requestPointerLock();
+            if (promise && promise.catch) promise.catch(() => {});
+          }
+        } catch (_) {
+          // Respaldo automático mediante arrastre
+        }
+      }
+
+      pauseGame() {
+        this.state = 'PAUSED';
+        if (document.pointerLockElement) {
+          try { document.exitPointerLock(); } catch (_) {}
+        }
+        const dist = Math.min(TUNNEL_LENGTH, Math.floor(Math.max(0, -this.player.pos.z)));
+        document.getElementById('pause-distance').textContent = `${String(dist).padStart(4, '0')} m / 2000 m`;
+        document.getElementById('hud').classList.remove('visible');
+        document.getElementById('pause-menu').classList.remove('hidden');
+      }
+
+      resetSession() {
+        this.player.pos.set(0, 0, -2);
+        this.player.vel.set(0, 0, 0);
+        this.player.yaw = 0;
+        this.player.pitch = 0;
+        this.player.bobPhase = 0;
+        this.player.stepAccum = 0;
+        this.elapsedPlayTime = 0;
+        this.director.reset();
+      }
+
+      triggerEnding() {
+        if (this.state === 'ENDING') return;
+        this.state = 'ENDING';
+        if (document.pointerLockElement) {
+          try { document.exitPointerLock(); } catch (_) {}
+        }
+
+        document.getElementById('hud').classList.remove('visible');
+        const curtain = document.getElementById('fade-curtain');
+        curtain.classList.remove('clear');
+        curtain.classList.add('warm-end');
+
+        const mins = Math.floor(this.elapsedPlayTime / 60);
+        const secs = Math.floor(this.elapsedPlayTime % 60);
+        const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        document.getElementById('ending-stats').textContent = `RECORRIDO: 2.000 M · TIEMPO: ${timeStr}`;
+
+        setTimeout(() => {
+          document.getElementById('ending-screen').classList.remove('hidden');
+        }, 3200);
+      }
+
+      updatePlayer(dt, speedMultiplier, fovOffset) {
+        // Rotación opcional con flechas izquierda/derecha
+        if (this.keys['ArrowLeft']) this.player.yaw += 1.45 * dt;
+        if (this.keys['ArrowRight']) this.player.yaw -= 1.45 * dt;
+
+        // Dirección de avance según teclas WASD
+        let forwardInput = 0;
+        let strafeInput = 0;
+        if (this.keys['KeyW'] || this.keys['ArrowUp'] || this.touchWalking) forwardInput += 1;
+        if (this.keys['KeyS'] || this.keys['ArrowDown']) forwardInput -= 1;
+        if (this.keys['KeyD']) strafeInput += 1;
+        if (this.keys['KeyA']) strafeInput -= 1;
+
+        const isBrisk = Boolean(this.keys['ShiftLeft'] || this.keys['ShiftRight']);
+        const baseSpeed = isBrisk ? 3.55 : 2.15;
+        const moveSpeed = baseSpeed * speedMultiplier;
+
+        const forwardVec = new THREE.Vector3(-Math.sin(this.player.yaw), 0, -Math.cos(this.player.yaw));
+        const rightVec = new THREE.Vector3(Math.cos(this.player.yaw), 0, -Math.sin(this.player.yaw));
+
+        const wishDir = new THREE.Vector3();
+        wishDir.addScaledVector(forwardVec, forwardInput);
+        wishDir.addScaledVector(rightVec, strafeInput);
+        if (wishDir.lengthSq() > 0) wishDir.normalize();
+
+        // Inercia física orgánica (aceleración y frenado natural)
+        const targetVx = wishDir.x * moveSpeed;
+        const targetVz = wishDir.z * moveSpeed;
+        const accel = wishDir.lengthSq() > 0 ? 7.5 : 9.0;
+        this.player.vel.x += (targetVx - this.player.vel.x) * Math.min(1, accel * dt);
+        this.player.vel.z += (targetVz - this.player.vel.z) * Math.min(1, accel * dt);
+
+        this.player.pos.x += this.player.vel.x * dt;
+        this.player.pos.z += this.player.vel.z * dt;
+
+        // Colisiones suaves con las paredes laterales y extremo inicial
+        this.player.pos.x = Math.max(-2.55, Math.min(2.75, this.player.pos.x));
+        this.player.pos.z = Math.min(-0.8, this.player.pos.z);
+
+        // Escalón suave al subir a la acera lateral derecha (x > 1.62)
+        const targetFloorY = this.player.pos.x > 1.62 ? 0.22 : 0.0;
+        this.player.pos.y += (targetFloorY - this.player.pos.y) * Math.min(1, 10 * dt);
+
+        const horizSpeed = Math.hypot(this.player.vel.x, this.player.vel.z);
+        const isMoving = horizSpeed > 0.25;
+
+        if (isMoving && !this.player.hasMovedOnce) {
+          this.player.hasMovedOnce = true;
+          setTimeout(() => {
+            document.getElementById('controls-hint').classList.add('hidden');
+          }, 3500);
+        }
+
+        // Balanceo natural de cabeza y cadencia sincronizada de pasos
+        const distance = Math.max(0, -this.player.pos.z);
+        if (isMoving) {
+          const stepFreq = isBrisk ? 2.55 : 1.78;
+          this.player.bobPhase += dt * stepFreq * Math.PI * 2;
+          this.player.stepAccum += dt * stepFreq;
+
+          if (this.player.stepAccum >= 1.0) {
+            this.player.stepAccum -= 1.0;
+            this.audio.playFootstep(isBrisk, false, 0);
+            this.director.onPlayerStep(distance, isBrisk);
+          }
+        } else {
+          // Retorno suave al reposo sin saltos
+          this.player.stepAccum = 0.65;
+        }
+
+        const bobY = isMoving ? Math.sin(this.player.bobPhase) * (isBrisk ? 0.048 : 0.032) : Math.sin(this.clock.elapsedTime * 1.4) * 0.008;
+        const bobX = isMoving ? Math.cos(this.player.bobPhase * 0.5) * 0.022 : 0;
+
+        this.camera.position.set(
+          this.player.pos.x + bobX,
+          this.player.pos.y + this.player.eyeHeight + bobY,
+          this.player.pos.z
+        );
+        this.camera.rotation.y = this.player.yaw;
+        this.camera.rotation.x = this.player.pitch;
+
+        // Zoom sutil de enfoque + modulación psicológica de campo de visión
+        const targetFov = (this.player.isFocusing ? 46 : this.baseFov) + fovOffset;
+        if (Math.abs(this.camera.fov - targetFov) > 0.05) {
+          this.camera.fov += (targetFov - this.camera.fov) * Math.min(1, 6 * dt);
+          this.camera.updateProjectionMatrix();
+        }
+
+        // Actualizar indicador discreto de distancia
+        const clampedMeters = Math.min(TUNNEL_LENGTH, Math.floor(distance));
+        const readout = document.getElementById('distance-readout');
+        document.getElementById('distance-text').textContent = `${String(clampedMeters).padStart(4, '0')} m / 2000 m`;
+        readout.classList.toggle('warm', clampedMeters >= 1450);
+
+        // Comprobar llegada al umbral de los 2.000 metros
+        if (distance >= TUNNEL_LENGTH) {
+          this.triggerEnding();
+        }
+
+        return isMoving;
+      }
+
+      animate() {
+        requestAnimationFrame(this.animate);
+
+        const dt = Math.min(0.05, this.clock.getDelta());
+        const elapsed = this.clock.elapsedTime;
+
+        if (this.state === 'MENU') {
+          // Cámara contemplativa respirando suavemente frente al túnel antes de empezar
+          this.camera.position.set(
+            Math.sin(elapsed * 0.35) * 0.18,
+            1.68 + Math.cos(elapsed * 0.7) * 0.02,
+            -2.0
+          );
+          this.camera.rotation.y = Math.sin(elapsed * 0.22) * 0.04;
+          this.camera.rotation.x = -0.02;
+          this.world.update(this.camera.position, elapsed, dt);
+        } else if (this.state === 'PLAYING') {
+          this.elapsedPlayTime += dt;
+
+          // Evaluar estado de movimiento previo para fenómenos perceptivos
+          const preMoving = Math.hypot(this.player.vel.x, this.player.vel.z) > 0.25;
+          const psychState = this.director.update(dt, this.player.pos, this.player.yaw, preMoving);
+
+          this.updatePlayer(dt, psychState.speedMultiplier, psychState.fovOffset);
+          const worldLightState = this.world.update(this.player.pos, elapsed, dt);
+
+          this.audio.update(elapsed, {
+            distance: Math.max(0, -this.player.pos.z),
+            nearestLightInfluence: worldLightState.nearestLightInfluence,
+            nearestLightFlicker: worldLightState.nearestLightFlicker,
+            whisperIntensity: psychState.whisperIntensity,
+            whisperPan: psychState.whisperPan,
+            pianoProximity: psychState.pianoProximity
+          });
+        }
+
+        this.renderer.render(this.scene, this.camera);
+      }
+    }
+
+    // Iniciar aplicación cuando el DOM y recursos estén listos
+    window.addEventListener('load', () => {
+      window.echoesApp = new EchoesApp();
+    });
+  </script>
+</body>
+</html>
