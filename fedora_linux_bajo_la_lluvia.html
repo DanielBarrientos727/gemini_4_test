@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#050a12">
+  <meta name="description" content="Fedora Linux bajo la lluvia nocturna — estética clásica GNOME 2.">
+  <title>Fedora Linux</title>
+
+  <style>
+    /* ==========================================================================
+       1. TOKENS DE DISEÑO — ESTÉTICA CLÁSICA GNOME 2 / FEDORA NOCTURNA
+       ========================================================================== */
+    :root {
+      --bg-abyss: #050a12;
+      --bg-deep: #0b192e;
+      --bg-mist: #1c355e;
+      --fedora-navy: #294172;
+      --fedora-blue: #3c6eb4;
+      --fedora-white: #ffffff;
+
+      --text-question: rgba(214, 230, 252, 0.86);
+      --text-answer: #f3f8ff;
+      --hud-text: rgba(196, 217, 245, 0.64);
+      --hud-text-hover: rgba(238, 246, 255, 0.94);
+      --hud-surface: rgba(11, 25, 46, 0.42);
+      --hud-border: rgba(110, 158, 224, 0.22);
+      --hud-border-hover: rgba(145, 190, 250, 0.44);
+
+      /* Pila tipográfica clásica de GNOME 2 / Fedora */
+      --font-gnome: 'Cantarell', 'DejaVu Sans', 'Liberation Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'DejaVu Sans Mono', 'Liberation Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    /* ==========================================================================
+       2. REINICIO MINIMALISTA Y PANTALLA ÚNICA (100dvh, SIN SCROLL)
+       ========================================================================== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--bg-abyss);
+      color: var(--text-answer);
+      font-family: var(--font-gnome);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ==========================================================================
+       3. ESCENA PRINCIPAL Y CAPAS DE PROFUNDIDAD
+       ========================================================================== */
+    .scene {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 75% 62% at 50% 36%, rgba(28, 53, 94, 0.34) 0%, rgba(11, 25, 46, 0.58) 46%, rgba(5, 10, 18, 0.98) 100%),
+        linear-gradient(180deg, #040810 0%, var(--bg-deep) 48%, var(--bg-abyss) 100%);
+      user-select: none;
+    }
+
+    /* Lienzos procedurales a pantalla completa */
+    .canvas-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+
+    #rain-canvas {
+      z-index: 1;
+    }
+
+    /* Desenfoque atmosférico muy sutil entre la lluvia exterior y el cristal */
+    .atmospheric-depth {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at 50% 48%,
+        rgba(41, 65, 114, 0.08) 0%,
+        rgba(5, 10, 18, 0.24) 68%,
+        rgba(3, 6, 12, 0.72) 100%
+      );
+    }
+
+    #glass-canvas {
+      z-index: 4;
+    }
+
+    /* Viñeta cinematográfica periférica */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at 50% 50%,
+        rgba(5, 10, 18, 0) 48%,
+        rgba(4, 8, 15, 0.45) 82%,
+        rgba(2, 5, 10, 0.84) 100%
+      );
+    }
+
+    /* ==========================================================================
+       4. CONTENIDO CENTRAL (LOGOTIPO FEDORA + PREGUNTA + RESPUESTA)
+       ========================================================================== */
+    .content {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.5rem;
+      max-width: 92vw;
+    }
+
+    /* Logotipo oficial de Fedora con iluminación azul nocturna muy sutil */
+    .fedora-emblem {
+      width: clamp(92px, 13vw, 124px);
+      height: clamp(92px, 13vw, 124px);
+      margin-bottom: clamp(1.5rem, 3.6vh, 2.25rem);
+      filter:
+        drop-shadow(0 0 22px rgba(60, 110, 180, 0.34))
+        drop-shadow(0 10px 24px rgba(5, 10, 18, 0.85));
+      animation: emblemGlow 10s ease-in-out infinite;
+      will-change: transform, filter;
+    }
+
+    .fedora-emblem svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .copy-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(0.6rem, 1.6vh, 0.95rem);
+    }
+
+    .question {
+      font-size: clamp(1.08rem, 2.3vw, 1.5rem);
+      font-weight: 300;
+      letter-spacing: 0.025em;
+      line-height: 1.4;
+      color: var(--text-question);
+      text-shadow:
+        0 0 18px rgba(41, 65, 114, 0.48),
+        0 2px 10px rgba(5, 10, 18, 0.95);
+      opacity: 0;
+      animation:
+        revealUp 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards,
+        contemplativeBreath 9s ease-in-out 1.6s infinite;
+    }
+
+    .answer {
+      font-size: clamp(1.58rem, 3.5vw, 2.3rem);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      line-height: 1.24;
+      color: var(--text-answer);
+      text-shadow:
+        0 0 24px rgba(60, 110, 180, 0.56),
+        0 0 6px rgba(185, 218, 255, 0.25),
+        0 3px 14px rgba(5, 10, 18, 0.96);
+      opacity: 0;
+      animation:
+        revealUp 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards,
+        contemplativeBreath 9s ease-in-out 2.1s infinite;
+    }
+
+    /* ==========================================================================
+       5. CONTROLES DISCRETOS EN ESQUINAS (ESTILO MINIMALISTA GNOME 2)
+       ========================================================================== */
+    .corner-item {
+      position: fixed;
+      z-index: 6;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: var(--hud-text);
+      text-decoration: none;
+      transition:
+        color 0.28s ease,
+        background-color 0.28s ease,
+        border-color 0.28s ease,
+        transform 0.28s ease;
+    }
+
+    .corner-item svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      opacity: 0.85;
+      transition: opacity 0.28s ease;
+    }
+
+    /* Esquina superior derecha: control de sonido ambiental */
+    .audio-toggle {
+      top: max(1.15rem, env(safe-area-inset-top));
+      right: max(1.25rem, env(safe-area-inset-right));
+      padding: 0.48rem 0.68rem;
+      border-radius: 6px;
+      border: 1px solid var(--hud-border);
+      background: var(--hud-surface);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 4px 14px rgba(3, 7, 14, 0.45);
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .audio-toggle:hover,
+    .audio-toggle:focus-visible {
+      color: var(--hud-text-hover);
+      border-color: var(--hud-border-hover);
+      background: rgba(28, 53, 94, 0.48);
+      outline: none;
+    }
+
+    .audio-toggle:hover svg,
+    .audio-toggle:focus-visible svg {
+      opacity: 1;
+    }
+
+    .audio-toggle[aria-pressed="true"] {
+      color: rgba(224, 239, 255, 0.92);
+      border-color: rgba(60, 110, 180, 0.55);
+      background: rgba(41, 65, 114, 0.46);
+    }
+
+    .audio-label {
+      font-size: 0.72rem;
+      font-weight: 400;
+    }
+
+    /* Esquina inferior izquierda: enlace discreto a GitHub */
+    .github-link {
+      bottom: max(1.15rem, env(safe-area-inset-bottom));
+      left: max(1.25rem, env(safe-area-inset-left));
+      padding: 0.35rem 0.45rem;
+      border-radius: 5px;
+    }
+
+    .github-link:hover,
+    .github-link:focus-visible {
+      color: var(--hud-text-hover);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .github-link:hover svg,
+    .github-link:focus-visible svg {
+      opacity: 1;
+    }
+
+    /* Esquina inferior derecha: contador real de visitas */
+    .visit-counter {
+      bottom: max(1.15rem, env(safe-area-inset-bottom));
+      right: max(1.25rem, env(safe-area-inset-right));
+      padding: 0.35rem 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-variant-numeric: tabular-nums;
+      cursor: default;
+    }
+
+    /* ==========================================================================
+       6. ANIMACIONES CONTEMPLATIVAS Y ACCESIBILIDAD
+       ========================================================================== */
+    @keyframes revealUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+        filter: blur(2px);
+      }
+      to {
+        opacity: 0.96;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes contemplativeBreath {
+      0%, 100% {
+        opacity: 0.96;
+      }
+      50% {
+        opacity: 0.78;
+      }
+    }
+
+    @keyframes emblemGlow {
+      0%, 100% {
+        transform: translateY(0);
+        filter:
+          drop-shadow(0 0 20px rgba(60, 110, 180, 0.3))
+          drop-shadow(0 10px 24px rgba(5, 10, 18, 0.85));
+      }
+      50% {
+        transform: translateY(-2px);
+        filter:
+          drop-shadow(0 0 28px rgba(60, 110, 180, 0.46))
+          drop-shadow(0 12px 26px rgba(5, 10, 18, 0.88));
+      }
+    }
+
+    .is-paused .fedora-emblem,
+    .is-paused .question,
+    .is-paused .answer {
+      animation-play-state: paused;
+    }
+
+    @media (max-width: 480px) {
+      .audio-label {
+        display: none;
+      }
+
+      .audio-toggle {
+        padding: 0.52rem;
+      }
+
+      .corner-item {
+        font-size: 0.72rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fedora-emblem,
+      .question,
+      .answer {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+      }
+
+      .fedora-emblem {
+        filter:
+          drop-shadow(0 0 22px rgba(60, 110, 180, 0.34))
+          drop-shadow(0 10px 24px rgba(5, 10, 18, 0.85)) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" id="scene">
+    <!-- Capa 1: Lluvia atmosférica multicapa e iluminación orgánica en niebla -->
+    <canvas id="rain-canvas" class="canvas-layer" aria-hidden="true"></canvas>
+
+    <!-- Capa 2: Profundidad óptica sutil entre exterior y cristal -->
+    <div class="atmospheric-depth" aria-hidden="true"></div>
+
+    <!-- Contenido central contemplativo -->
+    <main class="content">
+      <!-- Logotipo oficial de Fedora en SVG vectorial exacto -->
+      <div class="fedora-emblem" role="img" aria-label="Logotipo oficial de Fedora Linux">
+        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+          <!-- Contorno exterior oficial azul Fedora (#294172) con esquina inferior izquierda redondeada -->
+          <path
+            d="M 128 244 A 116 116 0 1 1 12 128 L 12 218 A 26 26 0 0 0 38 244 Z"
+            fill="#294172"
+          />
+
+          <!-- Símbolo interior infinito en azul medio (#3C6EB4): dos círculos tangentes r=22 -->
+          <circle
+            cx="106"
+            cy="150"
+            r="22"
+            fill="none"
+            stroke="#3C6EB4"
+            stroke-width="17.5"
+          />
+          <circle
+            cx="150"
+            cy="106"
+            r="22"
+            fill="none"
+            stroke="#3C6EB4"
+            stroke-width="17.5"
+          />
+
+          <!-- Trazo continuo blanco (#FFFFFF) de la letra «f» integrada -->
+          <path
+            d="M 84 150 A 22 22 0 0 0 128 150 L 128 106 A 22 22 0 1 1 172 106"
+            fill="none"
+            stroke="#FFFFFF"
+            stroke-width="17.5"
+            stroke-linecap="round"
+          />
+          <!-- Travesaño horizontal de la «f» -->
+          <line
+            x1="106"
+            y1="128"
+            x2="150"
+            y2="128"
+            stroke="#FFFFFF"
+            stroke-width="17.5"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+
+      <div class="copy-block">
+        <p class="question">¿Qué distro anda usando Daniel?</p>
+        <h1 class="answer">Fedora Linux</h1>
+      </div>
+    </main>
+
+    <!-- Capa 4: Micro-gotas de condensación y gotas deslizándose sobre el cristal -->
+    <canvas id="glass-canvas" class="canvas-layer" aria-hidden="true"></canvas>
+
+    <!-- Capa 5: Viñeta cinematográfica periférica -->
+    <div class="vignette" aria-hidden="true"></div>
+
+    <!-- Control discreto de sonido ambiental (esquina superior derecha) -->
+    <button
+      type="button"
+      id="audio-toggle"
+      class="corner-item audio-toggle"
+      aria-label="Activar sonido ambiental de lluvia"
+      aria-pressed="false"
+    >
+      <!-- Icono altavoz silenciado (estado inicial) -->
+      <svg id="icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <line x1="23" y1="9" x2="17" y2="15"></line>
+        <line x1="17" y1="9" x2="23" y2="15"></line>
+      </svg>
+      <!-- Icono altavoz activo (oculto hasta interacción) -->
+      <svg id="icon-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+      </svg>
+      <span class="audio-label" id="audio-label">Lluvia</span>
+    </button>
+
+    <!-- Enlace discreto a GitHub (esquina inferior izquierda) -->
+    <a
+      href="https://github.com/DanielBarrientos727"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="corner-item github-link"
+      aria-label="Perfil de GitHub de DanielBarrientos727 (se abre en una pestaña nueva)"
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+      </svg>
+      <span>DanielBarrientos727</span>
+    </a>
+
+    <!-- Contador real de visitas (esquina inferior derecha) -->
+    <div class="corner-item visit-counter" aria-label="Contador de visitas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>
+      <span id="visit-count" aria-live="polite">—</span>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * MÓDULO 1: LLUVIA PROCEDURAL MULTICAPA Y GOTAS REALISTAS SOBRE CRISTAL (2D)
+     * ============================================================================
+     */
+    (function initWeatherSimulation() {
+      const scene = document.getElementById('scene');
+      const rainCanvas = document.getElementById('rain-canvas');
+      const glassCanvas = document.getElementById('glass-canvas');
+      if (!rainCanvas || !glassCanvas) return;
+
+      const rainCtx = rainCanvas.getContext('2d', { alpha: true });
+      const glassCtx = glassCanvas.getContext('2d', { alpha: true });
+      const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      // Colecciones de partículas
+      let farDrops = [];
+      let midDrops = [];
+      let nearBokeh = [];
+      let staticDroplets = [];
+      let slidingDroplets = [];
+
+      let animFrameId = null;
+      let lastTimestamp = 0;
+      let elapsedTime = 0;
+
+      // Utilidades matemáticas ligeras
+      const rand = (min, max) => min + Math.random() * (max - min);
+
+      /**
+       * Configura la resolución física de ambos lienzos según devicePixelRatio
+       */
+      function resizeCanvases() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        [rainCanvas, glassCanvas].forEach((canvas) => {
+          canvas.width = Math.round(width * dpr);
+          canvas.height = Math.round(height * dpr);
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+        });
+
+        rainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        glassCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        populateParticles();
+      }
+
+      /**
+       * Inicializa densidades adaptadas al tamaño de pantalla (móvil vs escritorio)
+       */
+      function populateParticles() {
+        const area = width * height;
+        const densityScale = Math.max(0.45, Math.min(1.4, area / (1440 * 900)));
+
+        // 1. Plano lejano: cientos de gotas finas y lentas en la bruma nocturna
+        const farCount = Math.round(320 * densityScale);
+        farDrops = Array.from({ length: farCount }, () => ({
+          x: rand(-80, width + 80),
+          y: rand(0, height),
+          len: rand(12, 26),
+          speed: rand(240, 390),
+          alpha: rand(0.08, 0.2),
+          width: rand(0.6, 1.05),
+          windFactor: rand(0.65, 0.95)
+        }));
+
+        // 2. Plano medio: gotas principales con estela degradada natural
+        const midCount = Math.round(165 * densityScale);
+        midDrops = Array.from({ length: midCount }, () => ({
+          x: rand(-120, width + 120),
+          y: rand(0, height),
+          len: rand(28, 56),
+          speed: rand(560, 860),
+          alpha: rand(0.18, 0.42),
+          width: rand(0.95, 1.55),
+          windFactor: rand(0.9, 1.2)
+        }));
+
+        // 3. Plano cercano: gotas desenfocadas tipo bokeh cerca del exterior del vidrio
+        const bokehCount = Math.round(24 * densityScale);
+        nearBokeh = Array.from({ length: bokehCount }, () => ({
+          x: rand(-60, width + 60),
+          y: rand(0, height),
+          radius: rand(6, 18),
+          stretch: rand(1.8, 3.2),
+          speed: rand(950, 1450),
+          alpha: rand(0.035, 0.085),
+          windFactor: rand(1.15, 1.45)
+        }));
+
+        // 4. Micro-gotas estáticas de condensación repartidas sobre el cristal
+        const staticCount = Math.round(240 * densityScale);
+        staticDroplets = Array.from({ length: staticCount }, () => {
+          const baseRadius = rand(0.9, 3.1);
+          return {
+            x: rand(8, width - 8),
+            y: rand(8, height - 8),
+            r: baseRadius,
+            targetR: baseRadius,
+            stretchY: rand(1.0, 1.24),
+            regenDelay: 0
+          };
+        });
+
+        // 5. Gotas más grandes deslizándose lentamente por el cristal
+        const sliderCount = Math.max(7, Math.round(14 * densityScale));
+        slidingDroplets = Array.from({ length: sliderCount }, () => createSlidingDroplet(true));
+      }
+
+      /**
+       * Crea una gota deslizante con propiedades físicas orgánicas
+       */
+      function createSlidingDroplet(randomY = false) {
+        return {
+          x: rand(24, width - 24),
+          y: randomY ? rand(0, height * 0.85) : rand(-60, -10),
+          r: rand(2.6, 4.4),
+          vy: rand(14, 34),
+          vxBias: rand(-4, 4),
+          wobblePhase: rand(0, Math.PI * 2),
+          wobbleFreq: rand(1.4, 3.1),
+          stickTimer: rand(0, 1.8),
+          isStuck: Math.random() < 0.25,
+          trail: []
+        };
+      }
+
+      /**
+       * Renderiza la iluminación ambiental variable y las 3 capas de lluvia exterior
+       */
+      function renderExteriorRain(dt, time) {
+        rainCtx.clearRect(0, 0, width, height);
+
+        // Variación orgánica y lenta de iluminación en la bruma superior
+        const glowPulse = 0.5 + 0.5 * Math.sin(time * 0.22) * Math.cos(time * 0.13);
+        const shiftX = width * (0.5 + 0.08 * Math.sin(time * 0.17));
+        const mistGrad = rainCtx.createRadialGradient(
+          shiftX,
+          height * 0.24,
+          10,
+          width * 0.5,
+          height * 0.38,
+          Math.max(width, height) * 0.72
+        );
+        mistGrad.addColorStop(0, `rgba(41, 65, 114, ${0.14 + glowPulse * 0.08})`);
+        mistGrad.addColorStop(0.5, `rgba(28, 53, 94, ${0.07 + glowPulse * 0.04})`);
+        mistGrad.addColorStop(1, 'rgba(5, 10, 18, 0)');
+        rainCtx.fillStyle = mistGrad;
+        rainCtx.fillRect(0, 0, width, height);
+
+        // Viento orgánico modulado por ráfagas suaves (evita líneas paralelas rígidas)
+        const windAngle =
+          0.14 +
+          0.045 * Math.sin(time * 0.31) +
+          0.025 * Math.sin(time * 0.79 + 1.4);
+
+        // --- Capa 1: Lluvia lejana difuminada ---
+        rainCtx.lineCap = 'round';
+        for (let i = 0; i < farDrops.length; i++) {
+          const d = farDrops[i];
+          const localAngle = windAngle * d.windFactor;
+          const dx = Math.sin(localAngle) * d.len;
+          const dy = Math.cos(localAngle) * d.len;
+
+          if (dt > 0) {
+            d.x += Math.sin(localAngle) * d.speed * dt;
+            d.y += Math.cos(localAngle) * d.speed * dt;
+            if (d.y - d.len > height) {
+              d.y = -d.len - rand(0, 40);
+              d.x = rand(-100, width + 100);
+            }
+          }
+
+          rainCtx.strokeStyle = `rgba(148, 188, 242, ${d.alpha})`;
+          rainCtx.lineWidth = d.width;
+          rainCtx.beginPath();
+          rainCtx.moveTo(d.x, d.y);
+          rainCtx.lineTo(d.x - dx, d.y - dy);
+          rainCtx.stroke();
+        }
+
+        // --- Capa 2: Lluvia media con estela degradada ---
+        for (let i = 0; i < midDrops.length; i++) {
+          const d = midDrops[i];
+          const localAngle = windAngle * d.windFactor;
+          const dx = Math.sin(localAngle) * d.len;
+          const dy = Math.cos(localAngle) * d.len;
+
+          if (dt > 0) {
+            d.x += Math.sin(localAngle) * d.speed * dt;
+            d.y += Math.cos(localAngle) * d.speed * dt;
+            if (d.y - d.len > height) {
+              d.y = -d.len - rand(0, 60);
+              d.x = rand(-140, width + 140);
+            }
+          }
+
+          const grad = rainCtx.createLinearGradient(d.x - dx, d.y - dy, d.x, d.y);
+          grad.addColorStop(0, 'rgba(130, 176, 238, 0)');
+          grad.addColorStop(0.65, `rgba(176, 212, 255, ${d.alpha * 0.55})`);
+          grad.addColorStop(1, `rgba(225, 240, 255, ${d.alpha})`);
+
+          rainCtx.strokeStyle = grad;
+          rainCtx.lineWidth = d.width;
+          rainCtx.beginPath();
+          rainCtx.moveTo(d.x - dx, d.y - dy);
+          rainCtx.lineTo(d.x, d.y);
+          rainCtx.stroke();
+        }
+
+        // --- Capa 3: Gotas bokeh cercanas desenfocadas ---
+        for (let i = 0; i < nearBokeh.length; i++) {
+          const b = nearBokeh[i];
+          const localAngle = windAngle * b.windFactor;
+
+          if (dt > 0) {
+            b.x += Math.sin(localAngle) * b.speed * dt;
+            b.y += Math.cos(localAngle) * b.speed * dt;
+            if (b.y - b.radius * 4 > height) {
+              b.y = -b.radius * 4 - rand(0, 120);
+              b.x = rand(-80, width + 80);
+            }
+          }
+
+          rainCtx.save();
+          rainCtx.translate(b.x, b.y);
+          rainCtx.rotate(-localAngle);
+          rainCtx.scale(1, b.stretch);
+
+          const bokehGrad = rainCtx.createRadialGradient(0, 0, b.radius * 0.1, 0, 0, b.radius);
+          bokehGrad.addColorStop(0, `rgba(190, 222, 255, ${b.alpha})`);
+          bokehGrad.addColorStop(0.6, `rgba(110, 162, 230, ${b.alpha * 0.45})`);
+          bokehGrad.addColorStop(1, 'rgba(41, 65, 114, 0)');
+
+          rainCtx.fillStyle = bokehGrad;
+          rainCtx.beginPath();
+          rainCtx.arc(0, 0, b.radius, 0, Math.PI * 2);
+          rainCtx.fill();
+          rainCtx.restore();
+        }
+      }
+
+      /**
+       * Dibuja una gota individual sobre el cristal con refracción y brillo especular
+       */
+      function drawRefractiveDroplet(ctx, x, y, r, stretchY = 1.12, alphaScale = 1) {
+        if (r < 0.35) return;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(1, stretchY);
+
+        // 1. Sombra inferior sutil proyectada sobre el vidrio
+        ctx.beginPath();
+        ctx.arc(0, r * 0.22, r * 1.04, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(3, 7, 14, ${0.46 * alphaScale})`;
+        ctx.fill();
+
+        // 2. Cuerpo translúcido con refracción de luz nocturna azulada
+        const bodyGrad = ctx.createRadialGradient(-r * 0.25, -r * 0.3, r * 0.08, 0, r * 0.15, r);
+        bodyGrad.addColorStop(0, `rgba(210, 234, 255, ${0.26 * alphaScale})`);
+        bodyGrad.addColorStop(0.55, `rgba(60, 110, 180, ${0.15 * alphaScale})`);
+        bodyGrad.addColorStop(0.88, `rgba(165, 206, 255, ${0.32 * alphaScale})`);
+        bodyGrad.addColorStop(1, `rgba(230, 244, 255, ${0.42 * alphaScale})`);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fillStyle = bodyGrad;
+        ctx.fill();
+
+        // 3. Arco de luz refractada en el borde inferior (efecto lente convexa)
+        if (r > 1.5) {
+          ctx.beginPath();
+          ctx.arc(0, 0, r * 0.84, 0.22 * Math.PI, 0.78 * Math.PI);
+          ctx.strokeStyle = `rgba(198, 228, 255, ${0.42 * alphaScale})`;
+          ctx.lineWidth = Math.max(0.6, r * 0.16);
+          ctx.stroke();
+        }
+
+        // 4. Destello especular superior nítido
+        ctx.beginPath();
+        ctx.arc(-r * 0.32, -r * 0.34, Math.max(0.45, r * 0.24), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(245, 251, 255, ${0.68 * alphaScale})`;
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      /**
+       * Actualiza y dibuja la capa de cristal: condensación + gotas deslizantes
+       */
+      function renderGlassLayer(dt, time) {
+        glassCtx.clearRect(0, 0, width, height);
+
+        // 1. Micro-gotas estáticas de condensación (y re-condensación gradual tras ser absorbidas)
+        for (let i = 0; i < staticDroplets.length; i++) {
+          const s = staticDroplets[i];
+          if (dt > 0 && s.r < s.targetR) {
+            if (s.regenDelay > 0) {
+              s.regenDelay -= dt;
+            } else {
+              s.r = Math.min(s.targetR, s.r + dt * 0.32);
+            }
+          }
+          if (s.r > 0.35) {
+            drawRefractiveDroplet(glassCtx, s.x, s.y, s.r, s.stretchY, 0.82);
+          }
+        }
+
+        // 2. Gotas mayores deslizándose por tensión superficial y dejando estela húmeda
+        for (let i = 0; i < slidingDroplets.length; i++) {
+          const drop = slidingDroplets[i];
+
+          if (dt > 0) {
+            // Alternancia orgánica entre deslizamiento y breves pausas por tensión superficial
+            drop.stickTimer -= dt;
+            if (drop.stickTimer <= 0) {
+              drop.isStuck = !drop.isStuck;
+              drop.stickTimer = drop.isStuck ? rand(0.25, 1.15) : rand(0.9, 3.2);
+            }
+
+            const speedMultiplier = drop.isStuck ? 0.14 : 1.0;
+            const currentVy = (drop.vy + drop.r * 5.2) * speedMultiplier;
+            const meander =
+              Math.sin(time * drop.wobbleFreq + drop.wobblePhase + drop.y * 0.025) *
+              11 *
+              speedMultiplier;
+
+            drop.y += currentVy * dt;
+            drop.x += (drop.vxBias * 0.25 + meander) * dt;
+
+            // Registrar punto de estela húmeda
+            if (!drop.isStuck && (drop.trail.length === 0 || Math.hypot(drop.x - drop.trail[drop.trail.length - 1].x, drop.y - drop.trail[drop.trail.length - 1].y) > 3.5)) {
+              drop.trail.push({
+                x: drop.x,
+                y: drop.y,
+                r: drop.r * 0.42,
+                life: 1.0
+              });
+            }
+
+            // Absorción de micro-gotas estáticas en su trayectoria
+            const captureRadius = drop.r * 1.45;
+            for (let j = 0; j < staticDroplets.length; j++) {
+              const s = staticDroplets[j];
+              if (s.r <= 0.35) continue;
+              const dx = s.x - drop.x;
+              const dy = s.y - drop.y;
+              if (dx * dx + dy * dy < (captureRadius + s.r) * (captureRadius + s.r)) {
+                // Conservación aproximada de área/volumen al fusionarse
+                drop.r = Math.min(6.4, Math.hypot(drop.r, s.r * 0.65));
+                drop.isStuck = false;
+                s.r = 0;
+                s.regenDelay = rand(4.5, 11.0);
+              }
+            }
+          }
+
+          // Dibujar y evaporar gradualmente la estela húmeda
+          if (drop.trail.length > 1) {
+            for (let t = drop.trail.length - 1; t >= 0; t--) {
+              const pt = drop.trail[t];
+              if (dt > 0) {
+                pt.life -= dt * 0.24;
+              }
+              if (pt.life <= 0) {
+                drop.trail.splice(t, 1);
+                continue;
+              }
+
+              glassCtx.beginPath();
+              glassCtx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
+              glassCtx.fillStyle = `rgba(165, 206, 255, ${0.14 * pt.life})`;
+              glassCtx.fill();
+            }
+          }
+
+          // Dibujar la gota deslizante principal
+          const elongation = drop.isStuck ? 1.15 : 1.34;
+          drawRefractiveDroplet(glassCtx, drop.x, drop.y, drop.r, elongation, 1.0);
+
+          // Reiniciar gota arriba cuando sale por el borde inferior
+          if (dt > 0 && drop.y - drop.r * 2 > height && drop.trail.length === 0) {
+            slidingDroplets[i] = createSlidingDroplet(false);
+          }
+        }
+      }
+
+      /**
+       * Bucle principal de animación sincronizado con requestAnimationFrame
+       */
+      function tick(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
+        lastTimestamp = timestamp;
+        elapsedTime += dt;
+
+        renderExteriorRain(dt, elapsedTime);
+        renderGlassLayer(dt, elapsedTime);
+
+        animFrameId = window.requestAnimationFrame(tick);
+      }
+
+      function startLoop() {
+        if (reducedMotionQuery.matches) {
+          // Fotograma estático sereno para usuarios con movimiento reducido
+          renderExteriorRain(0, 1.2);
+          renderGlassLayer(0, 1.2);
+          return;
+        }
+        if (!animFrameId && !document.hidden) {
+          lastTimestamp = 0;
+          animFrameId = window.requestAnimationFrame(tick);
+        }
+      }
+
+      function stopLoop() {
+        if (animFrameId) {
+          window.cancelAnimationFrame(animFrameId);
+          animFrameId = null;
+        }
+      }
+
+      // Gestión de visibilidad de pestaña para ahorro de CPU/batería
+      document.addEventListener('visibilitychange', () => {
+        if (scene) scene.classList.toggle('is-paused', document.hidden);
+        if (document.hidden) {
+          stopLoop();
+        } else {
+          startLoop();
+        }
+      });
+
+      // Redimensionamiento con debounce ligero
+      let resizeTimer = null;
+      window.addEventListener('resize', () => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          resizeCanvases();
+          if (reducedMotionQuery.matches) {
+            renderExteriorRain(0, 1.2);
+            renderGlassLayer(0, 1.2);
+          }
+        }, 120);
+      });
+
+      // Reacción dinámica si cambia la preferencia de movimiento del sistema
+      reducedMotionQuery.addEventListener('change', () => {
+        stopLoop();
+        startLoop();
+      });
+
+      resizeCanvases();
+      startLoop();
+    })();
+
+    /**
+     * ============================================================================
+     * MÓDULO 2: PAISAJE SONORO DE LLUVIA SOBRE VENTANA (WEB AUDIO API)
+     * ============================================================================
+     */
+    (function initRainAudio() {
+      const toggleBtn = document.getElementById('audio-toggle');
+      const iconMuted = document.getElementById('icon-muted');
+      const iconSound = document.getElementById('icon-sound');
+      const audioLabel = document.getElementById('audio-label');
+      if (!toggleBtn) return;
+
+      let audioCtx = null;
+      let masterGain = null;
+      let dropletTimer = null;
+      let isPlaying = false;
+      const TARGET_VOLUME = 0.32;
+
+      /**
+       * Genera un búfer estéreo continuo de ruido rosa/marrón suave sin cortes de bucle
+       */
+      function createSeamlessRainBuffer(ctx, durationSeconds = 8) {
+        const sampleRate = ctx.sampleRate;
+        const length = sampleRate * durationSeconds;
+        const buffer = ctx.createBuffer(2, length, sampleRate);
+
+        for (let channel = 0; channel < 2; channel++) {
+          const data = buffer.getChannelData(channel);
+          let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+          let brown = 0;
+
+          for (let i = 0; i < length; i++) {
+            const white = Math.random() * 2 - 1;
+            // Filtro de Paul Kellet para ruido rosa natural
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            b3 = 0.86650 * b3 + white * 0.3104856;
+            b4 = 0.55000 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.0168980;
+            const pink = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.045;
+            b6 = white * 0.115926;
+
+            brown = (brown + 0.02 * white) / 1.02;
+            data[i] = pink * 0.72 + brown * 0.65;
+          }
+
+          // Crossfade en los extremos del búfer para garantizar continuidad imperceptible
+          const fadeSamples = Math.floor(sampleRate * 0.25);
+          for (let i = 0; i < fadeSamples; i++) {
+            const ratio = i / fadeSamples;
+            const tailIndex = length - fadeSamples + i;
+            data[i] = data[i] * ratio + data[tailIndex] * (1 - ratio);
+          }
+        }
+
+        return buffer;
+      }
+
+      /**
+       * Construye el grafo de audio de lluvia exterior atenuada por cristal + gotas
+       */
+      function buildAudioGraph() {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+
+        const ctx = new AudioContextClass();
+
+        // Nodo maestro de volumen con inicio en silencio para rampa suave
+        masterGain = ctx.createGain();
+        masterGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        masterGain.connect(ctx.destination);
+
+        // 1. Fuente continua de lluvia exterior
+        const rainSource = ctx.createBufferSource();
+        rainSource.buffer = createSeamlessRainBuffer(ctx, 8);
+        rainSource.loop = true;
+
+        // Filtrado acústico que simula la lluvia detrás del vidrio de una ventana
+        const highpass = ctx.createBiquadFilter();
+        highpass.type = 'highpass';
+        highpass.frequency.value = 115;
+
+        const lowpass = ctx.createBiquadFilter();
+        lowpass.type = 'lowpass';
+        lowpass.frequency.value = 1420;
+        lowpass.Q.value = 0.55;
+
+        const warmth = ctx.createBiquadFilter();
+        warmth.type = 'peaking';
+        warmth.frequency.value = 410;
+        warmth.Q.value = 0.8;
+        warmth.gain.value = 2.4;
+
+        // Modulación orgánica lenta de intensidad de lluvia
+        const rainBedGain = ctx.createGain();
+        rainBedGain.gain.value = 0.82;
+
+        const lfo = ctx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.045; // Ciclo lento de ~22 segundos
+        const lfoDepth = ctx.createGain();
+        lfoDepth.gain.value = 0.1;
+        lfo.connect(lfoDepth);
+        lfoDepth.connect(rainBedGain.gain);
+
+        rainSource.connect(highpass);
+        highpass.connect(warmth);
+        warmth.connect(lowpass);
+        lowpass.connect(rainBedGain);
+        rainBedGain.connect(masterGain);
+
+        rainSource.start();
+        lfo.start();
+
+        return ctx;
+      }
+
+      /**
+       * Genera micro-impulsos estocásticos suaves de gotas golpeando el cristal
+       */
+      function scheduleGlassDropletSound() {
+        if (!isPlaying || !audioCtx || audioCtx.state !== 'running') return;
+
+        const now = audioCtx.currentTime;
+        const duration = 0.018 + Math.random() * 0.014;
+        const sampleCount = Math.floor(audioCtx.sampleRate * duration);
+        const dropBuffer = audioCtx.createBuffer(1, sampleCount, audioCtx.sampleRate);
+        const channelData = dropBuffer.getChannelData(0);
+
+        for (let i = 0; i < sampleCount; i++) {
+          const env = Math.exp(-i / (sampleCount * 0.22));
+          channelData[i] = (Math.random() * 2 - 1) * env;
+        }
+
+        const src = audioCtx.createBufferSource();
+        src.buffer = dropBuffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1750 + Math.random() * 2400;
+        filter.Q.value = 3.2 + Math.random() * 3.0;
+
+        const dropGain = audioCtx.createGain();
+        const peak = 0.014 + Math.random() * 0.032;
+        dropGain.gain.setValueAtTime(0.0001, now);
+        dropGain.gain.linearRampToValueAtTime(peak, now + 0.002);
+        dropGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        // Posicionamiento estéreo aleatorio sobre el ancho de la ventana
+        if (audioCtx.createStereoPanner) {
+          const panner = audioCtx.createStereoPanner();
+          panner.pan.value = (Math.random() * 2 - 1) * 0.85;
+          src.connect(filter);
+          filter.connect(dropGain);
+          dropGain.connect(panner);
+          panner.connect(masterGain);
+        } else {
+          src.connect(filter);
+          filter.connect(dropGain);
+          dropGain.connect(masterGain);
+        }
+
+        src.start(now);
+
+        const nextDelayMs = 45 + Math.random() * 240;
+        dropletTimer = window.setTimeout(scheduleGlassDropletSound, nextDelayMs);
+      }
+
+      function updateButtonUI(active) {
+        toggleBtn.setAttribute('aria-pressed', String(active));
+        toggleBtn.setAttribute(
+          'aria-label',
+          active ? 'Silenciar sonido ambiental de lluvia' : 'Activar sonido ambiental de lluvia'
+        );
+        iconMuted.hidden = active;
+        iconSound.hidden = !active;
+        if (audioLabel) {
+          audioLabel.textContent = active ? 'Sonido' : 'Lluvia';
+        }
+      }
+
+      async function toggleAudio() {
+        if (!isPlaying) {
+          if (!audioCtx) {
+            audioCtx = buildAudioGraph();
+            if (!audioCtx) return;
+          }
+
+          if (audioCtx.state === 'suspended') {
+            await audioCtx.resume();
+          }
+
+          isPlaying = true;
+          updateButtonUI(true);
+
+          const now = audioCtx.currentTime;
+          masterGain.gain.cancelScheduledValues(now);
+          masterGain.gain.setValueAtTime(Math.max(0.0001, masterGain.gain.value), now);
+          masterGain.gain.exponentialRampToValueAtTime(TARGET_VOLUME, now + 1.2);
+
+          scheduleGlassDropletSound();
+        } else {
+          isPlaying = false;
+          updateButtonUI(false);
+          window.clearTimeout(dropletTimer);
+
+          if (audioCtx && masterGain) {
+            const now = audioCtx.currentTime;
+            masterGain.gain.cancelScheduledValues(now);
+            masterGain.gain.setValueAtTime(Math.max(0.0001, masterGain.gain.value), now);
+            masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+
+            window.setTimeout(() => {
+              if (!isPlaying && audioCtx && audioCtx.state === 'running') {
+                audioCtx.suspend();
+              }
+            }, 1150);
+          }
+        }
+      }
+
+      toggleBtn.addEventListener('click', toggleAudio);
+    })();
+
+    /**
+     * ============================================================================
+     * MÓDULO 3: CONTADOR REAL DE VISITAS COMPARTIDO (SIN CIFRAS INVENTADAS)
+     * ============================================================================
+     */
+    (function initVisitCounter() {
+      const countEl = document.getElementById('visit-count');
+      if (!countEl) return;
+
+      const NAMESPACE = 'danielbarrientos727-fedora-rain';
+      const KEY = 'visits';
+      const SESSION_FLAG = 'fedora_rain_counted_v1';
+
+      // Evita incrementar el contador múltiples veces dentro de la misma sesión
+      let alreadyCounted = false;
+      try {
+        alreadyCounted = window.sessionStorage.getItem(SESSION_FLAG) === '1';
+      } catch (_) {
+        alreadyCounted = false;
+      }
+
+      const endpoint = alreadyCounted
+        ? `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}`
+        : `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`;
+
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 5000);
+
+      fetch(endpoint, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store',
+        signal: controller.signal
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error('Servicio no disponible');
+          return response.json();
+        })
+        .then((data) => {
+          const total = typeof data.count === 'number' ? data.count : Number(data.value);
+          if (Number.isFinite(total) && total >= 0) {
+            countEl.textContent = total.toLocaleString('es-ES');
+            try {
+              window.sessionStorage.setItem(SESSION_FLAG, '1');
+            } catch (_) {
+              // Ignorar restricciones de almacenamiento en navegación privada estricta
+            }
+          } else {
+            countEl.textContent = '—';
+          }
+        })
+        .catch(() => {
+          // Estado alternativo silencioso si el servicio externo falla o está bloqueado
+          countEl.textContent = '—';
+        })
+        .finally(() => {
+          window.clearTimeout(timeoutId);
+        });
+    })();
+  </script>
+</body>
+</html>
